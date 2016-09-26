@@ -15,9 +15,10 @@ public class Converter {
      * @param order - bytes order
      * @param bytes - bytes to converting. Bytes count must be 2
      * @return integer value from bytes
+     * @throws IllegalArgumentException if bytes count not equal 2
      */
     public static short bytesToShort(ByteOrder order, byte... bytes) {
-        if (bytes.length != 2) {
+        if (bytes == null || bytes.length != 2) {
             throw new IllegalArgumentException("Bytes count must be 2");
         }
 
@@ -32,6 +33,7 @@ public class Converter {
      * @param order - bytes order
      * @param bytes - bytes to converting. Bytes count must be 4
      * @return integer value from bytes
+     * @throws IllegalArgumentException if bytes count not equal 4
      */
     public static int bytesToInt(ByteOrder order, byte... bytes) {
         if (bytes.length != 4) {
@@ -40,7 +42,7 @@ public class Converter {
 
         ByteBuffer buffer = ByteBuffer.wrap(bytes, 0, 4);
         buffer.order(order);
-        return buffer.getShort();
+        return buffer.getInt();
     }
 
     /**
@@ -49,6 +51,7 @@ public class Converter {
      * @param order - bytes order
      * @param bytes - bytes to converting. Bytes count must be 8
      * @return integer value from bytes
+     * @throws IllegalArgumentException if bytes count not equal 8
      */
     public static long bytesToLong(ByteOrder order, byte... bytes) {
         if (bytes.length != 8) {

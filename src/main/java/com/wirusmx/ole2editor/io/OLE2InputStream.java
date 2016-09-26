@@ -2,7 +2,6 @@ package com.wirusmx.ole2editor.io;
 
 import com.wirusmx.ole2editor.exceptions.IllegalFileStructure;
 import com.wirusmx.ole2editor.exceptions.SIDOutOfBoundsException;
-import com.wirusmx.ole2editor.utils.Converter;
 
 import java.io.*;
 import java.nio.ByteOrder;
