@@ -36,7 +36,7 @@ public class Converter {
      * @throws IllegalArgumentException if bytes count not equal 4
      */
     public static int bytesToInt(ByteOrder order, byte... bytes) {
-        if (bytes.length != 4) {
+        if (bytes == null || bytes.length != 4) {
             throw new IllegalArgumentException("Bytes count must be 4");
         }
 
@@ -54,7 +54,7 @@ public class Converter {
      * @throws IllegalArgumentException if bytes count not equal 8
      */
     public static long bytesToLong(ByteOrder order, byte... bytes) {
-        if (bytes.length != 8) {
+        if (bytes == null || bytes.length != 8) {
             throw new IllegalArgumentException("Bytes count must be 8");
         }
 
@@ -65,7 +65,7 @@ public class Converter {
 
     @Deprecated
     public static String utf16BytesToString(ByteOrder order, byte... bytes) {
-        if (bytes.length == 0) {
+        if (bytes == null || bytes.length == 0) {
             return "";
         }
 
