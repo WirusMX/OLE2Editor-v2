@@ -3,7 +3,6 @@ package com.wirusmx.ole2editor.io;
 import com.wirusmx.ole2editor.utils.Converter;
 
 import java.nio.ByteOrder;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static com.wirusmx.ole2editor.Constants.ENTRY_HEADER_SIZE;
@@ -45,17 +44,17 @@ public class OLE2Entry {
         name = new byte[64];
 
         System.arraycopy(rawData, offset, name, 0, 64);
-        nameLength = Converter.bytesToShort(byteOrder, rawData[offset + 64], rawData[offset + 65]);
+        nameLength = Converter.bytesToInt16(byteOrder, rawData[offset + 64], rawData[offset + 65]);
 
         type = EntryType.values()[rawData[offset + 66]];
 
         nodeColor = EntryColor.values()[rawData[offset + 67]];
 
-        leftChildID = Converter.bytesToInt(byteOrder, rawData[offset + 68], rawData[offset + 69],
+        leftChildID = Converter.bytesToInt32(byteOrder, rawData[offset + 68], rawData[offset + 69],
                 rawData[offset + 70], rawData[offset + 71]);
-        rightChildID = Converter.bytesToInt(byteOrder, rawData[offset + 72], rawData[offset + 73],
+        rightChildID = Converter.bytesToInt32(byteOrder, rawData[offset + 72], rawData[offset + 73],
                 rawData[offset + 74], rawData[offset + 75]);
-        rootNodeID = Converter.bytesToInt(byteOrder, rawData[offset + 76], rawData[offset + 77],
+        rootNodeID = Converter.bytesToInt32(byteOrder, rawData[offset + 76], rawData[offset + 77],
                 rawData[offset + 78], rawData[offset + 79]);
 
         uniqueID = new byte[16];
@@ -70,10 +69,10 @@ public class OLE2Entry {
         System.arraycopy(rawData, offset + 108, temp, 0, 8);
         modificationTimeStamp = new Date(Converter.bytesToLong(byteOrder, temp));
 
-        firstStreamSectorID = Converter.bytesToInt(byteOrder, rawData[offset + 116], rawData[offset + 117],
+        firstStreamSectorID = Converter.bytesToInt32(byteOrder, rawData[offset + 116], rawData[offset + 117],
                 rawData[offset + 118], rawData[offset + 119]);
 
-        size = Converter.bytesToInt(byteOrder, rawData[offset + 120], rawData[offset + 121],
+        size = Converter.bytesToInt32(byteOrder, rawData[offset + 120], rawData[offset + 121],
                 rawData[offset + 122], rawData[offset + 123]);
 
         endBytes = new byte[]{rawData[offset + 124], rawData[offset + 125], rawData[offset + 126], rawData[offset + 127]};

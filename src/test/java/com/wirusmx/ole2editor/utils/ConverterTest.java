@@ -3,6 +3,7 @@ package com.wirusmx.ole2editor.utils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -11,7 +12,7 @@ public class ConverterTest extends Assert {
     private static final ByteOrder BYTE_ORDER = ByteOrder.LITTLE_ENDIAN;
 
     @Test
-    public void bytesToShortConverterTest() {
+    public void bytesToInt16ConverterTest() {
         short[] testNumbers = new short[]{-5555, -555, -2, -1, 0, 1, 2, 555, 5555};
 
         for (short i: testNumbers){
@@ -20,12 +21,19 @@ public class ConverterTest extends Assert {
             buffer.putShort(i);
             assertEquals("",
                     i,
-                    Converter.bytesToShort(BYTE_ORDER, buffer.array()));
+                    Converter.bytesToInt16(BYTE_ORDER, buffer.array()));
         }
     }
 
     @Test
-    public void bytesToIntConverterTest() {
+    public void int16ToBytesTest(){
+        byte[] expectedBytes = new BigInteger("" + Short.MAX_VALUE).toByteArray();
+        byte[] actualBytes = Converter.int16ToBytes(Short.MAX_VALUE, ByteOrder.BIG_ENDIAN);
+        assertArrayEquals(expectedBytes, actualBytes);
+    }
+
+    @Test
+    public void bytesToInt32ConverterTest() {
         int[] testNumbers = new int[]{-55555555, -5555555, -555555, -5555, -555, -2, -1,
         0, 1, 2, 555, 5555, 555555, 5555555, 55555555, 555555555};
 
@@ -35,12 +43,19 @@ public class ConverterTest extends Assert {
             buffer.putInt(i);
             assertEquals("",
                     i,
-                    Converter.bytesToInt(BYTE_ORDER, buffer.array()));
+                    Converter.bytesToInt32(BYTE_ORDER, buffer.array()));
         }
     }
 
     @Test
-    public void bytesToLongConverterTest() {
+    public void int32ToBytesTest(){
+        byte[] expectedBytes = new BigInteger("" + Integer.MAX_VALUE).toByteArray();
+        byte[] actualBytes = Converter.int32ToBytes(Integer.MAX_VALUE, ByteOrder.BIG_ENDIAN);
+        assertArrayEquals(expectedBytes, actualBytes);
+    }
+
+    @Test
+    public void bytesToInt64ConverterTest() {
         long[] testNumbers = new long[]{Long.MIN_VALUE, -555555555, -55555555, -5555555, -555555, -5555, -555, -2, -1,
                 0, 1, 2, 555, 5555, 555555, 5555555, 55555555, 555555555, Long.MAX_VALUE};
 
@@ -52,6 +67,13 @@ public class ConverterTest extends Assert {
                     i,
                     Converter.bytesToLong(BYTE_ORDER, buffer.array()));
         }
+    }
+
+    @Test
+    public void int64ToBytesTest(){
+        byte[] expectedBytes = new BigInteger("" + Long.MAX_VALUE).toByteArray();
+        byte[] actualBytes = Converter.int64ToBytes(Long.MAX_VALUE, ByteOrder.BIG_ENDIAN);
+        assertArrayEquals(expectedBytes, actualBytes);
     }
 
     @Test
@@ -88,8 +110,15 @@ public class ConverterTest extends Assert {
         ByteBuffer buffer4 = ByteBuffer.wrap(testBytes4);
         buffer4.order(BYTE_ORDER);
         assertEquals(testString4,
-                Converter.utf16BytesToString(ByteOrder.LITTLE_ENDIAN, buffer4.array()));
+                Converter.utf16BytesToString(BYTE_ORDER, buffer4.array()));
     }
 
+    @Test
+    public void stringToUtf16BytesTest(){
+        byte[] expectedBytes = new byte[]{68, 0, 97, 0, 116, 0, 97, 0};
+        byte[] actualBytes = Converter.stringToUtf16Bytes("Data", ByteOrder.LITTLE_ENDIAN);
 
+        assertNotNull(actualBytes);
+        assertArrayEquals(expectedBytes, actualBytes);
+    }
 }

@@ -51,7 +51,7 @@ public class OLE2InputStream extends InputStream implements Closeable {
 
         byte[] buffer = readHeader();
 
-        int t = bytesToShort(ByteOrder.LITTLE_ENDIAN, buffer[28], buffer[29]);
+        int t = bytesToInt16(ByteOrder.LITTLE_ENDIAN, buffer[28], buffer[29]);
         switch (t) {
             case -1: {
                 byteOrder = ByteOrder.BIG_ENDIAN;
@@ -66,33 +66,33 @@ public class OLE2InputStream extends InputStream implements Closeable {
             }
         }
 
-        sectorSize = (int) Math.pow(2, bytesToShort(byteOrder, buffer[30], buffer[31]));
-        shortSectorSize = (int) Math.pow(2, bytesToShort(byteOrder, buffer[32], buffer[33]));
-        rootEntrySID = bytesToInt(byteOrder, buffer[48], buffer[49], buffer[50], buffer[51]);
-        standardSectorMinimumSize = bytesToInt(byteOrder, buffer[56], buffer[57], buffer[58], buffer[59]);
+        sectorSize = (int) Math.pow(2, bytesToInt16(byteOrder, buffer[30], buffer[31]));
+        shortSectorSize = (int) Math.pow(2, bytesToInt16(byteOrder, buffer[32], buffer[33]));
+        rootEntrySID = bytesToInt32(byteOrder, buffer[48], buffer[49], buffer[50], buffer[51]);
+        standardSectorMinimumSize = bytesToInt32(byteOrder, buffer[56], buffer[57], buffer[58], buffer[59]);
 
-        int SATSectorsCount = bytesToInt(byteOrder, buffer[44], buffer[45], buffer[46], buffer[47]);
+        int SATSectorsCount = bytesToInt32(byteOrder, buffer[44], buffer[45], buffer[46], buffer[47]);
 
-        int nextSSATSID = bytesToInt(byteOrder, buffer[60], buffer[61], buffer[62], buffer[63]);
-        int SSATSectorsCount = bytesToInt(byteOrder, buffer[64], buffer[65], buffer[66], buffer[67]);
+        int nextSSATSID = bytesToInt32(byteOrder, buffer[60], buffer[61], buffer[62], buffer[63]);
+        int SSATSectorsCount = bytesToInt32(byteOrder, buffer[64], buffer[65], buffer[66], buffer[67]);
 
         masterSectorAllocationTable = new ArrayList<>();
         int offset = 76;
         for (; offset < FILE_HEADER_SIZE && SATSectorsCount > 0; offset += 4) {
-            masterSectorAllocationTable.add(bytesToInt(byteOrder, buffer[offset], buffer[offset + 1],
+            masterSectorAllocationTable.add(bytesToInt32(byteOrder, buffer[offset], buffer[offset + 1],
                     buffer[offset + 2], buffer[offset + 3]));
             SATSectorsCount--;
         }
-        int nextMSATSID = bytesToInt(byteOrder, buffer[68], buffer[69], buffer[70], buffer[71]);
+        int nextMSATSID = bytesToInt32(byteOrder, buffer[68], buffer[69], buffer[70], buffer[71]);
         while (nextMSATSID >= 0 && SATSectorsCount > 0) {
             buffer = readSector(nextMSATSID);
 
             for (offset = 0; offset < sectorSize - 4 && SATSectorsCount > 0; offset += 4) {
-                masterSectorAllocationTable.add(bytesToInt(byteOrder, buffer[offset], buffer[offset + 1],
+                masterSectorAllocationTable.add(bytesToInt32(byteOrder, buffer[offset], buffer[offset + 1],
                         buffer[offset + 2], buffer[offset + 3]));
                 SATSectorsCount--;
             }
-            nextMSATSID = bytesToInt(byteOrder, buffer[offset], buffer[offset + 1], buffer[offset + 2],
+            nextMSATSID = bytesToInt32(byteOrder, buffer[offset], buffer[offset + 1], buffer[offset + 2],
                     buffer[offset + 3]);
         }
 
@@ -103,7 +103,7 @@ public class OLE2InputStream extends InputStream implements Closeable {
             }
             buffer = readSector(sid);
             for (offset = 0; offset < sectorSize; offset += 4) {
-                sectorAllocationTable.add(bytesToInt(byteOrder, buffer[offset], buffer[offset + 1],
+                sectorAllocationTable.add(bytesToInt32(byteOrder, buffer[offset], buffer[offset + 1],
                         buffer[offset + 2], buffer[offset + 3]));
             }
         }
@@ -113,11 +113,11 @@ public class OLE2InputStream extends InputStream implements Closeable {
             buffer = readSector(nextSSATSID);
 
             for (offset = 0; offset < sectorSize - 4; offset += 4) {
-                shortSectorAllocationTable.add(bytesToInt(byteOrder, buffer[offset], buffer[offset + 1],
+                shortSectorAllocationTable.add(bytesToInt32(byteOrder, buffer[offset], buffer[offset + 1],
                         buffer[offset + 2], buffer[offset + 3]));
             }
 
-            nextSSATSID = bytesToInt(byteOrder, buffer[offset], buffer[offset + 1], buffer[offset + 2],
+            nextSSATSID = bytesToInt32(byteOrder, buffer[offset], buffer[offset + 1], buffer[offset + 2],
                     buffer[offset + 3]);
 
             SSATSectorsCount--;
