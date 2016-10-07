@@ -44,8 +44,9 @@ public class Controller {
         File currentFile = fileChooser.getSelectedFile();
         model.setCurrentFile(currentFile);
 
+
         try {
-            view.updateStreamsList(model.getStreamsTree());
+            view.updateStreams(model.getStreamsTree());
         } catch (IOException e) {
             e.printStackTrace();
         } catch (IllegalFileStructure illegalFileStructure) {
@@ -54,6 +55,7 @@ public class Controller {
 
         view.setTitle("[" + currentFile.getName() + "]");
         view.update();
+
 
     }
 

@@ -19,11 +19,5 @@ public interface View {
 
     Controller getController();
 
-    void updateStreamsList(LinkedOLE2Entry tree);
-
-    void updateFilesList(File file);
-
-    void updateStatus1(String value);
-
-    void updateStatus2(String value);
+    void updateStreams(LinkedOLE2Entry tree);
 }

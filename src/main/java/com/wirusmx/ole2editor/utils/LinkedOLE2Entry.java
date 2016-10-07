@@ -162,6 +162,17 @@ public class LinkedOLE2Entry extends OLE2Entry {
         return this;
     }
 
+    public String getAbsolutePath(){
+        String path = getNameAsString();
+        LinkedOLE2Entry t = getParent();
+        while (t != null){
+            path = t.getNameAsString() + "/" + path;
+            t = t.getParent();
+        }
+
+        return path;
+    }
+
     /**
      * @return list of <code>{@link LinkedOLE2Entry}</code>, which contains in current storage,
      * order by type and name.
