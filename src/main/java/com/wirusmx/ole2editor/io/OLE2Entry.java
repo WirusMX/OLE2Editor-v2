@@ -155,7 +155,7 @@ public class OLE2Entry {
         if (nameLength == 0) {
             return "";
         }
-        return new String(name, 0, nameLength - 2);
+        return Converter.utf16BytesToString(byteOrder, name);
     }
 
     /**
@@ -247,6 +247,13 @@ public class OLE2Entry {
     }
 
     /**
+     * @return byte order
+     */
+    public ByteOrder getByteOrder() {
+        return byteOrder;
+    }
+
+    /**
      * @return last 4 bytes of node. Not used. Must be 0.
      */
     public byte[] getEndBytes() {
@@ -255,15 +262,13 @@ public class OLE2Entry {
 
     @Override
     public String toString() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        return "OLE2Entry{" +
-                "\n\tname = " + getNameAsString() +
-                ",\n\ttype = " + type +
-                ",\n\tfirst stream SID = " + firstStreamSectorID +
-                ",\n\tcreation time stamp = " + dateFormat.format(creationTimeStamp) +
-                ",\n\tmodification time stamp = " + dateFormat.format(modificationTimeStamp) +
-                ",\n\tsize = " + size +
-                "\n}";
+        switch (type) {
+            case USER_STORAGE:
+            case ROOT_STORAGE:
+                return "[" + getNameAsString() + "]";
+            default:
+                return getNameAsString();
+        }
     }
 
     /**

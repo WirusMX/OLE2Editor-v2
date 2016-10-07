@@ -1,20 +1,26 @@
 package com.wirusmx.ole2editor;
 
-import com.wirusmx.ole2editor.controller.ConsoleController;
-import com.wirusmx.ole2editor.controller.Controller;
-import com.wirusmx.ole2editor.model.Model;
-import com.wirusmx.ole2editor.view.ConsoleView;
-import com.wirusmx.ole2editor.view.GUIView;
+import com.wirusmx.ole2editor.application.controller.Controller;
+import com.wirusmx.ole2editor.application.model.Model;
+import com.wirusmx.ole2editor.application.view.View;
+import com.wirusmx.ole2editor.application.view.gui.GuiView;
+
+import java.util.Locale;
 
 /**
  * Application main class, contains public static void main method
  * and nothing else.
+ * <p>
+ * If application starts with the <code>-c</code> argument, then console view is used,
+ * else GUI view.
  */
 public class MainClass {
     public static void main(String[] args) {
+        Locale.setDefault(new Locale("en"));
         Model model = new Model();
-        ConsoleView view = new ConsoleView();
-        ConsoleController controller = new ConsoleController(model, view);
+        View view = new GuiView();
+
+        Controller controller = new Controller(model, view);
 
         controller.init();
     }

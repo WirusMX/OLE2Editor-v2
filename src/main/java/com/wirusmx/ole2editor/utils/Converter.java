@@ -63,7 +63,6 @@ public class Converter {
         return buffer.getLong();
     }
 
-    @Deprecated
     public static String utf16BytesToString(ByteOrder order, byte... bytes) {
         if (bytes == null || bytes.length == 0) {
             return "";
@@ -75,14 +74,38 @@ public class Converter {
 
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
         buffer.order(order);
-        ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-        InputStreamReader isr = new InputStreamReader(is, Charset.forName("utf-16"));
-        BufferedReader br = new BufferedReader(isr);
-        try {
-            return br.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        String result = "";
+        char ch;
+        int processedBytes = 0;
+        while (processedBytes < bytes.length && (ch = buffer.getChar()) != 0){
+            result += ch;
+            processedBytes += 2;
         }
-        return "";
+
+        return result;
+    }
+
+    public static byte[] stringToUtf16Bytes(String string, ByteOrder order, boolean useDefaultBufferSize) {
+        if (string == null || string.length() == 0) {
+            return new byte[0];
+        }
+
+        if (string.length() > 62){
+            throw new IllegalArgumentException("String length can not be greater then 31");
+        }
+
+        int bufferSize = string.length() * 2;
+        if (useDefaultBufferSize){
+            bufferSize = 64;
+        }
+
+        ByteBuffer buffer = ByteBuffer.wrap(new byte[bufferSize]);
+        buffer.order(order);
+        for (char ch: string.toCharArray()){
+            buffer.putChar(ch);
+        }
+
+        return buffer.array();
     }
 }
