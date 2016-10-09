@@ -21,6 +21,8 @@ public class FilesPanel extends JPanel {
 
     private View view;
 
+    private File current = new File("").getAbsoluteFile();
+
     public FilesPanel(View view) {
         this.view = view;
         init();
@@ -33,13 +35,23 @@ public class FilesPanel extends JPanel {
         filesList.addMouseListener(new GotoDirectory());
         filesList.setLayoutOrientation(JList.VERTICAL);
 
-        updateFilesList(new File("").getAbsoluteFile());
+        updateFilesList(current);
 
         add(filesListLabel, BorderLayout.NORTH);
         add(filesListPane, BorderLayout.CENTER);
     }
 
+    public void update(){
+        updateFilesList(current);
+    }
+
     public void updateFilesList(File file) {
+        if (file == null || !file.exists()){
+            return;
+        }
+
+        current = file;
+
         filesListLabel.setText(file.getAbsolutePath());
         filesListModel.clear();
         if (file.getParentFile() != null) {

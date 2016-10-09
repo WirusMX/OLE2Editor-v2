@@ -3,16 +3,18 @@ package com.wirusmx.ole2editor.application.view.gui;
 import com.wirusmx.ole2editor.application.controller.Controller;
 import com.wirusmx.ole2editor.application.view.FileChooser;
 import com.wirusmx.ole2editor.application.view.View;
-import com.wirusmx.ole2editor.application.view.gui.actions.*;
+import com.wirusmx.ole2editor.application.view.gui.actions.ExitAction;
+import com.wirusmx.ole2editor.application.view.gui.actions.OpenAction;
 import com.wirusmx.ole2editor.application.view.gui.listeners.SaveMenuListener;
+import com.wirusmx.ole2editor.application.view.gui.listeners.ViewMenuListener;
 import com.wirusmx.ole2editor.application.view.gui.panels.FilesPanel;
 import com.wirusmx.ole2editor.application.view.gui.panels.StreamsPanel;
-import com.wirusmx.ole2editor.utils.LinkedOLE2Entry;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
+
 public class GuiView extends JFrame implements View {
     private ResourceBundle uiResourceBundle = ResourceBundle.getBundle("lang.ui");
 
@@ -22,9 +24,13 @@ public class GuiView extends JFrame implements View {
 
     private JSplitPane splitPane2 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
-    private FilesPanel filesPanel = new FilesPanel(this);
+    private JPanel sectorsPanel = null;
     private StreamsPanel streamsPanel = new StreamsPanel(this);
+    private JPanel systemInformationPanel = null;
 
+    private JPanel hexEditorPanel = null;
+    private FilesPanel filesPanel = new FilesPanel(this);
+    private JPanel propertiesPanel = null;
 
     public void setController(Controller controller) {
         this.controller = controller;
@@ -45,6 +51,36 @@ public class GuiView extends JFrame implements View {
         super.setTitle(frameName + " " + title);
     }
 
+    @Override
+    public int getVisiblePanels() {
+        int result = 0;
+        if (sectorsPanel != null){
+            result += 1;
+        }
+
+        if (streamsPanel != null){
+            result += 2;
+        }
+
+        if (systemInformationPanel != null){
+            result += 4;
+        }
+
+        if (hexEditorPanel != null){
+            result += 8;
+        }
+
+        if (filesPanel != null){
+            result += 16;
+        }
+
+        if (propertiesPanel != null){
+            result += 32;
+        }
+
+        return result;
+    }
+
     public void init() {
         super.setTitle(frameName);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -59,17 +95,24 @@ public class GuiView extends JFrame implements View {
         initMainMenuBar();
 
         splitPane2.setLeftComponent(streamsPanel);
-
         splitPane2.setRightComponent(filesPanel);
-
+        splitPane2.setDividerSize(10);
         add(splitPane2, BorderLayout.CENTER);
 
         setVisible(true);
     }
 
-    public void updateStreams(LinkedOLE2Entry tree){
-        streamsPanel.updateList(tree);
+    public void update(){
+        if (streamsPanel != null) {
+            streamsPanel.update();
+        }
+
+        if (filesPanel != null){
+            filesPanel.update();
+        }
     }
+
+
 
     private void initMainMenuBar() {
         JMenuBar menuBar = new JMenuBar();
@@ -100,15 +143,18 @@ public class GuiView extends JFrame implements View {
 
         JMenu leftPanel = new JMenu(uiResourceBundle.getString("menu_view_left_panel"));
         viewMenu.add(leftPanel);
-        addCheckBoxMenuItem(leftPanel, uiResourceBundle.getString("menu_view_left_panel_tree"), true, null);
-        addCheckBoxMenuItem(leftPanel, uiResourceBundle.getString("menu_view_left_panel_list"), true, null);
+        JCheckBoxMenuItem sectorsPanel = addCheckBoxMenuItem(leftPanel, uiResourceBundle.getString("menu_view_left_panel_sectors"), false, null);
+        JCheckBoxMenuItem streamsPanel = addCheckBoxMenuItem(leftPanel, uiResourceBundle.getString("menu_view_left_panel_streams"), true, null);
+        JCheckBoxMenuItem systemInformationPanel = addCheckBoxMenuItem(leftPanel, uiResourceBundle.getString("menu_view_left_panel_system_information"), false, null);
+
 
         JMenu rightPanel = new JMenu(uiResourceBundle.getString("menu_view_right_panel"));
         viewMenu.add(rightPanel);
-        addCheckBoxMenuItem(rightPanel, uiResourceBundle.getString("menu_view_right_panel_stream_hex"), false, null);
-        addCheckBoxMenuItem(rightPanel, uiResourceBundle.getString("menu_view_right_panel_os_fs"), true, null);
-        addCheckBoxMenuItem(rightPanel, uiResourceBundle.getString("menu_view_right_panel_stream_properties"), false, null);
+        JCheckBoxMenuItem hexPanel = addCheckBoxMenuItem(rightPanel, uiResourceBundle.getString("menu_view_right_panel_stream_hex"), false, null);
+        JCheckBoxMenuItem osfsPanel = addCheckBoxMenuItem(rightPanel, uiResourceBundle.getString("menu_view_right_panel_os_fs"), true, null);
+        JCheckBoxMenuItem streamPropertiesPanel = addCheckBoxMenuItem(rightPanel, uiResourceBundle.getString("menu_view_right_panel_stream_properties"), false, null);
 
+        viewMenu.addMenuListener(new ViewMenuListener(this, sectorsPanel, streamsPanel, systemInformationPanel, hexPanel, osfsPanel, streamPropertiesPanel));
         viewMenu.addSeparator();
 
         addMenuItem(viewMenu, uiResourceBundle.getString("menu_view_save_view_settings"), null);
@@ -134,9 +180,4 @@ public class GuiView extends JFrame implements View {
         parent.add(menuItem);
         return menuItem;
     }
-
-    public void update() {
-    }
-
-
 }

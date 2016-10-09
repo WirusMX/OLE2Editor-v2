@@ -10,9 +10,6 @@ import java.util.Locale;
 /**
  * Application main class, contains public static void main method
  * and nothing else.
- * <p>
- * If application starts with the <code>-c</code> argument, then console view is used,
- * else GUI view.
  */
 public class MainClass {
     public static void main(String[] args) {
