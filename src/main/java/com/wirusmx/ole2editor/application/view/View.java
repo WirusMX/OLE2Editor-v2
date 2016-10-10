@@ -17,5 +17,9 @@ public interface View {
 
     void update();
 
-    int getVisiblePanels();
+    int getVisiblePanelsCode();
+
+    void hidePanel(Class panelClass);
+
+    void showPanel(Class panelClass);
 }

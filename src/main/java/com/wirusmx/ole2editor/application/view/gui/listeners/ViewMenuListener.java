@@ -30,31 +30,14 @@ public class ViewMenuListener implements MenuListener {
 
     @Override
     public void menuSelected(MenuEvent e) {
-        int code = view.getVisiblePanels();
+        int code = view.getVisiblePanelsCode();
 
-        if ((code & 1) == 1){
-            sectorsPanel.setSelected(true);
-        }
-
-        if ((code & 2) == 2){
-            streamsPanel.setSelected(true);
-        }
-
-        if ((code & 4) == 4){
-            systemInformationPanel.setSelected(true);
-        }
-
-        if ((code & 8) == 8){
-            hexPanel.setSelected(true);
-        }
-
-        if ((code & 16) == 16){
-            osfsPanel.setSelected(true);
-        }
-
-        if ((code & 32) == 32){
-            streamPropertiesPanel.setSelected(true);
-        }
+        sectorsPanel.setSelected((code & 1) == 1);
+        streamsPanel.setSelected((code & 2) == 2);
+        systemInformationPanel.setSelected((code & 4) == 4);
+        hexPanel.setSelected((code & 8) == 8);
+        osfsPanel.setSelected((code & 16) == 16);
+        streamPropertiesPanel.setSelected((code & 32) == 32);
     }
 
     @Override
