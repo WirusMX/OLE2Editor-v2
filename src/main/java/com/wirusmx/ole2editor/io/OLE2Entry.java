@@ -64,10 +64,10 @@ public class OLE2Entry {
 
         byte[] temp = new byte[8];
         System.arraycopy(rawData, offset + 100, temp, 0, 8);
-        creationTimeStamp = new Date(Converter.bytesToLong(byteOrder, temp));
+        creationTimeStamp = new Date(Converter.bytesToInt64(byteOrder, temp));
 
         System.arraycopy(rawData, offset + 108, temp, 0, 8);
-        modificationTimeStamp = new Date(Converter.bytesToLong(byteOrder, temp));
+        modificationTimeStamp = new Date(Converter.bytesToInt64(byteOrder, temp));
 
         firstStreamSectorID = Converter.bytesToInt32(byteOrder, rawData[offset + 116], rawData[offset + 117],
                 rawData[offset + 118], rawData[offset + 119]);

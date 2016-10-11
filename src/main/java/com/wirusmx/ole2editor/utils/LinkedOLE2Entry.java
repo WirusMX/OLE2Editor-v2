@@ -162,10 +162,10 @@ public class LinkedOLE2Entry extends OLE2Entry {
         return this;
     }
 
-    public String getAbsolutePath(){
+    public String getAbsolutePath() {
         String path = getNameAsString();
         LinkedOLE2Entry t = getParent();
-        while (t != null){
+        while (t != null) {
             path = t.getNameAsString() + "/" + path;
             t = t.getParent();
         }
@@ -179,7 +179,7 @@ public class LinkedOLE2Entry extends OLE2Entry {
      * @throws IllegalMethodCallException if current entry is not a storage.
      */
     public List<LinkedOLE2Entry> entriesList() {
-        if (child == null) {
+        if (!getType().equals(EntryType.ROOT_STORAGE) && !getType().equals(EntryType.USER_STORAGE)) {
             throw new IllegalMethodCallException("Stream with type:" + getType().toString() + " not contains children");
         }
 
@@ -256,7 +256,7 @@ public class LinkedOLE2Entry extends OLE2Entry {
         }
 
         for (int i = 0; i < linkedOLE2Entries.length; i++) {
-            if (entries.get(i).getType().equals(EntryType.EMPTY)){
+            if (entries.get(i).getType().equals(EntryType.EMPTY)) {
                 linked[i] = true;
                 continue;
             }

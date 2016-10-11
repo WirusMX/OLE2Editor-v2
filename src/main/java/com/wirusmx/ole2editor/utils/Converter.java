@@ -20,6 +20,7 @@ public class Converter {
         ByteBuffer buffer = ByteBuffer.wrap(bytes, 0, 2);
         buffer.order(order);
         return buffer.getShort();
+        
     }
 
     /**
@@ -76,7 +77,7 @@ public class Converter {
      * @return integer value from bytes
      * @throws IllegalArgumentException if bytes count not equal 8
      */
-    public static long bytesToLong(ByteOrder order, byte... bytes) {
+    public static long bytesToInt64(ByteOrder order, byte... bytes) {
         if (bytes == null || bytes.length != 8) {
             throw new IllegalArgumentException("Bytes count must be 8");
         }
@@ -124,7 +125,7 @@ public class Converter {
     }
 
     public static byte[] stringToUtf16Bytes(String string, ByteOrder order) {
-        return  stringToUtf16Bytes(string, order, false);
+        return stringToUtf16Bytes(string, order, false);
     }
 
     public static byte[] stringToUtf16Bytes(String string, ByteOrder order, boolean useDefaultBufferSize) {
@@ -132,7 +133,7 @@ public class Converter {
             return new byte[0];
         }
 
-        if (string.length() > 62) {
+        if (string.length() > 31) {
             throw new IllegalArgumentException("String length can not be greater then 31");
         }
 
