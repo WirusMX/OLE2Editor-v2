@@ -216,6 +216,13 @@ public class OLE2InputStream extends InputStream implements Closeable {
         return entrySID >= 0;
     }
 
+    /**
+     * @return raw header bytes
+     * @throws IOException if an I/O error occurs
+     */
+    public byte[] readHeader() throws IOException {
+        return readHeaderOrSector(true, -1);
+    }
 
     /**
      * Reopens input stream
@@ -280,14 +287,6 @@ public class OLE2InputStream extends InputStream implements Closeable {
     private byte[] getShortStreamBytes() {
         //TODO
         return new byte[0];
-    }
-
-    /**
-     * @return raw header bytes
-     * @throws IOException if an I/O error occurs
-     */
-    private byte[] readHeader() throws IOException {
-        return readHeaderOrSector(true, -1);
     }
 
     /**
