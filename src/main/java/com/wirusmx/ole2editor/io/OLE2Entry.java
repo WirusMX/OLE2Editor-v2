@@ -3,7 +3,6 @@ package com.wirusmx.ole2editor.io;
 import com.wirusmx.ole2editor.utils.Converter;
 
 import java.nio.ByteOrder;
-import java.util.Arrays;
 import java.util.Date;
 
 import static com.wirusmx.ole2editor.Constants.ENTRY_HEADER_SIZE;
@@ -50,7 +49,6 @@ public class OLE2Entry {
             throw new IllegalArgumentException("Entry name length must be more then or equals 0 and less then 65");
         }
 
-
         byte nodeTypeByte = rawData[offset + 66];
         if (nodeTypeByte < 0 || nodeTypeByte >= EntryType.values().length){
             throw new IllegalArgumentException("Entry type byte must be more then or equals 0 and less then "
@@ -91,6 +89,8 @@ public class OLE2Entry {
                 rawData[offset + 122], rawData[offset + 123]);
 
         endBytes = new byte[]{rawData[offset + 124], rawData[offset + 125], rawData[offset + 126], rawData[offset + 127]};
+
+        this.byteOrder = byteOrder;
     }
 
     /**
@@ -99,7 +99,7 @@ public class OLE2Entry {
      * @param rawData   - raw bytes from the file stream
      * @param byteOrder - byte order
      */
-    public OLE2Entry(byte[] rawData, ByteOrder byteOrder) {
+    public OLE2Entry(final byte[] rawData, final ByteOrder byteOrder) {
         this(rawData, 0, byteOrder);
     }
 
@@ -127,9 +127,21 @@ public class OLE2Entry {
      * @param endBytes              - last 4 bytes of node
      * @param byteOrder             - byte order
      */
-    public OLE2Entry(byte[] name, int nameLength, EntryType type, EntryColor nodeColor, int leftChildID,
-                     int rightChildID, int rootNodeID, byte[] uniqueID, byte[] userFlags, Date creationTimeStamp,
-                     Date modificationTimeStamp, int firstStreamSectorID, int size, byte[] endBytes, ByteOrder byteOrder) {
+    public OLE2Entry(final byte[] name,
+                     final int nameLength,
+                     final EntryType type,
+                     final EntryColor nodeColor,
+                     final int leftChildID,
+                     final int rightChildID,
+                     final int rootNodeID,
+                     final byte[] uniqueID,
+                     final byte[] userFlags,
+                     final Date creationTimeStamp,
+                     final Date modificationTimeStamp,
+                     final int firstStreamSectorID,
+                     final int size,
+                     final byte[] endBytes,
+                     final ByteOrder byteOrder) {
 
         if (name == null){
             throw new IllegalArgumentException("Bytes array of the entry name must be not null");
