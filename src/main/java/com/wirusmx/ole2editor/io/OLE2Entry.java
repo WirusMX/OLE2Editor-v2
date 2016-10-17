@@ -3,6 +3,7 @@ package com.wirusmx.ole2editor.io;
 import com.wirusmx.ole2editor.utils.Converter;
 
 import java.nio.ByteOrder;
+import java.util.Arrays;
 import java.util.Date;
 
 import static com.wirusmx.ole2editor.Constants.ENTRY_HEADER_SIZE;
@@ -36,7 +37,7 @@ public class OLE2Entry {
      * @param offset    - offset into bytes array
      * @param byteOrder - byte order
      */
-    public OLE2Entry(byte[] rawData, int offset, ByteOrder byteOrder) {
+    public OLE2Entry(final byte[] rawData, final int offset, final ByteOrder byteOrder) {
         if (rawData.length - offset < ENTRY_HEADER_SIZE) {
             throw new IllegalArgumentException("Bytes array must contains at list " + ENTRY_HEADER_SIZE + " elements");
         }
@@ -45,10 +46,24 @@ public class OLE2Entry {
 
         System.arraycopy(rawData, offset, name, 0, 64);
         nameLength = Converter.bytesToInt16(byteOrder, rawData[offset + 64], rawData[offset + 65]);
+        if (nameLength < 0 || nameLength > 64){
+            throw new IllegalArgumentException("Entry name length must be more then or equals 0 and less then 65");
+        }
 
-        type = EntryType.values()[rawData[offset + 66]];
 
-        nodeColor = EntryColor.values()[rawData[offset + 67]];
+        byte nodeTypeByte = rawData[offset + 66];
+        if (nodeTypeByte < 0 || nodeTypeByte >= EntryType.values().length){
+            throw new IllegalArgumentException("Entry type byte must be more then or equals 0 and less then "
+                    + EntryType.values().length);
+        }
+        type = EntryType.values()[nodeTypeByte];
+
+        byte colorByte = rawData[offset + 67];
+        if (colorByte < 0 || colorByte >= EntryColor.values().length){
+            throw new IllegalArgumentException("Entry color byte must be more then or equals 0 and less then "
+                    + EntryColor.values().length);
+        }
+        nodeColor = EntryColor.values()[colorByte];
 
         leftChildID = Converter.bytesToInt32(byteOrder, rawData[offset + 68], rawData[offset + 69],
                 rawData[offset + 70], rawData[offset + 71]);
@@ -115,11 +130,16 @@ public class OLE2Entry {
     public OLE2Entry(byte[] name, int nameLength, EntryType type, EntryColor nodeColor, int leftChildID,
                      int rightChildID, int rootNodeID, byte[] uniqueID, byte[] userFlags, Date creationTimeStamp,
                      Date modificationTimeStamp, int firstStreamSectorID, int size, byte[] endBytes, ByteOrder byteOrder) {
+
+        if (name == null){
+            throw new IllegalArgumentException("Bytes array of the entry name must be not null");
+        }
+
         if (name.length > 64) {
             throw new IllegalArgumentException("Bytes array of the entry name must contains not more 64 elements");
         }
 
-        if (nameLength > 64) {
+        if (nameLength < 0 || nameLength > 64) {
             throw new IllegalArgumentException("Bytes array of the entry name must contains not more 64 elements");
         }
 
@@ -154,6 +174,7 @@ public class OLE2Entry {
         if (nameLength == 0) {
             return "";
         }
+
         return Converter.utf16BytesToString(byteOrder, name);
     }
 

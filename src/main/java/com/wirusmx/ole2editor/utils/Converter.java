@@ -115,10 +115,10 @@ public class Converter {
 
         String result = "";
         char ch;
-        int processedBytes = 0;
-        while (processedBytes < bytes.length && (ch = buffer.getChar()) != 0) {
+        int processedBytesCount = 0;
+        while (processedBytesCount < bytes.length && (ch = buffer.getChar()) != 0) {
             result += ch;
-            processedBytes += 2;
+            processedBytesCount += 2;
         }
 
         return result;
