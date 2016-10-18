@@ -1,8 +1,6 @@
 package com.wirusmx.ole2editor.application.view.gui;
 
 import com.wirusmx.ole2editor.application.controller.Controller;
-import com.wirusmx.ole2editor.application.view.FileChooser;
-import com.wirusmx.ole2editor.application.view.View;
 import com.wirusmx.ole2editor.application.view.gui.actions.ExitAction;
 import com.wirusmx.ole2editor.application.view.gui.actions.OpenAction;
 import com.wirusmx.ole2editor.application.view.gui.actions.ShowHidePanelAction;
@@ -12,10 +10,12 @@ import com.wirusmx.ole2editor.application.view.gui.panels.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.util.ResourceBundle;
 
-public class GuiView extends JFrame implements View {
+public class GuiView extends JFrame {
     private ResourceBundle uiResourceBundle = ResourceBundle.getBundle("lang.ui");
 
     private final String frameName = "OLE2 EDITOR";
@@ -24,24 +24,10 @@ public class GuiView extends JFrame implements View {
 
     private JSplitPane splitPane2 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
-    private SectorsPanel sectorsPanel = null;
-    private StreamsPanel streamsPanel = new StreamsPanel(this);
-    private SystemInformationPanel systemInformationPanel = null;
-
-    private HexEditorPanel hexEditorPanel = null;
-    private FilesPanel filesPanel = new FilesPanel(this);
-    private PropertiesPanel propertiesPanel = null;
-
     public void setController(Controller controller) {
         this.controller = controller;
     }
 
-    @Override
-    public FileChooser getFileChooser() {
-        return new GuiFileChooser(this);
-    }
-
-    @Override
     public Controller getController() {
         return controller;
     }
@@ -51,7 +37,6 @@ public class GuiView extends JFrame implements View {
         super.setTitle(frameName + " " + title);
     }
 
-    @Override
     public int getVisiblePanelsCode() {
         int result = 0;
 
@@ -86,7 +71,6 @@ public class GuiView extends JFrame implements View {
         return result;
     }
 
-    @Override
     public void hidePanel(Class panelClass) {
         if (panelClass == SectorsPanel.class
                 || panelClass == StreamsPanel.class
@@ -103,29 +87,29 @@ public class GuiView extends JFrame implements View {
         }
     }
 
-    @Override
+
     public void showPanel(Class panelClass) {
-        if (panelClass == SectorsPanel.class){
+        if (panelClass == SectorsPanel.class) {
             splitPane2.setLeftComponent(new SectorsPanel(this));
         }
 
-        if (panelClass == StreamsPanel.class){
+        if (panelClass == StreamsPanel.class) {
             splitPane2.setLeftComponent(new StreamsPanel(this));
         }
 
-        if (panelClass == SystemInformationPanel.class){
+        if (panelClass == SystemInformationPanel.class) {
             splitPane2.setLeftComponent(new SystemInformationPanel(this));
         }
 
-        if (panelClass == HexEditorPanel.class){
+        if (panelClass == HexEditorPanel.class) {
             splitPane2.setRightComponent(new HexEditorPanel(this));
         }
 
-        if (panelClass == FilesPanel.class){
+        if (panelClass == FilesPanel.class) {
             splitPane2.setRightComponent(new FilesPanel(this));
         }
 
-        if (panelClass == PropertiesPanel.class){
+        if (panelClass == PropertiesPanel.class) {
             splitPane2.setRightComponent(new PropertiesPanel(this));
         }
     }
@@ -143,8 +127,8 @@ public class GuiView extends JFrame implements View {
 
         initMainMenuBar();
 
-        splitPane2.setLeftComponent(streamsPanel);
-        splitPane2.setRightComponent(filesPanel);
+        splitPane2.setLeftComponent(new StreamsPanel(this));
+        splitPane2.setRightComponent(new FilesPanel(this));
         splitPane2.setDividerSize(10);
         add(splitPane2, BorderLayout.CENTER);
 
@@ -152,15 +136,16 @@ public class GuiView extends JFrame implements View {
     }
 
     public void update() {
-        if (streamsPanel != null) {
-            streamsPanel.update();
+        MyPanel left = (MyPanel) splitPane2.getLeftComponent();
+        if (left != null){
+            left.update();
         }
 
-        if (filesPanel != null) {
-            filesPanel.update();
+        MyPanel right = (MyPanel) splitPane2.getRightComponent();
+        if (right != null){
+            right.update();
         }
     }
-
 
     private void initMainMenuBar() {
         JMenuBar menuBar = new JMenuBar();
@@ -176,13 +161,13 @@ public class GuiView extends JFrame implements View {
         JMenu fileMenu = new JMenu(uiResourceBundle.getString("menu_file"));
         menuBar.add(fileMenu);
 
-        addMenuItem(fileMenu, uiResourceBundle.getString("menu_file_new"), null);
-        addMenuItem(fileMenu, uiResourceBundle.getString("menu_file_open"), new OpenAction(this));
-        JMenuItem menuSave = addMenuItem(fileMenu, uiResourceBundle.getString("menu_file_save"), null);
-        JMenuItem menuSaveAs = addMenuItem(fileMenu, uiResourceBundle.getString("menu_file_save_as"), null);
+        addMenuItem(fileMenu, uiResourceBundle.getString("menu_file_new"), null, KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
+        addMenuItem(fileMenu, uiResourceBundle.getString("menu_file_open"), new OpenAction(this), "menu_open.png", KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
+        JMenuItem menuSave = addMenuItem(fileMenu, uiResourceBundle.getString("menu_file_save"), null, "menu_save.png", KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
+        JMenuItem menuSaveAs = addMenuItem(fileMenu, uiResourceBundle.getString("menu_file_save_as"), null, "menu_saveas.png", KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
         fileMenu.addMenuListener(new SaveMenuListener(this, menuSave, menuSaveAs));
         fileMenu.addSeparator();
-        addMenuItem(fileMenu, uiResourceBundle.getString("menu_file_exit"), new ExitAction(this));
+        addMenuItem(fileMenu, uiResourceBundle.getString("menu_file_exit"), new ExitAction(this), KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.ALT_MASK));
     }
 
     private void initViewMenu(JMenuBar menuBar) {
@@ -194,30 +179,36 @@ public class GuiView extends JFrame implements View {
         JCheckBoxMenuItem sectorsPanel = addCheckBoxMenuItem(leftPanel,
                 uiResourceBundle.getString("menu_view_left_panel_sectors"),
                 false,
-                new ShowHidePanelAction(this, SectorsPanel.class));
+                new ShowHidePanelAction(this, SectorsPanel.class),
+                KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.CTRL_MASK));
         JCheckBoxMenuItem streamsPanel = addCheckBoxMenuItem(leftPanel,
                 uiResourceBundle.getString("menu_view_left_panel_streams"),
                 false,
-                new ShowHidePanelAction(this, StreamsPanel.class));
+                new ShowHidePanelAction(this, StreamsPanel.class),
+                KeyStroke.getKeyStroke(KeyEvent.VK_2, ActionEvent.CTRL_MASK));
         JCheckBoxMenuItem systemInformationPanel = addCheckBoxMenuItem(leftPanel,
                 uiResourceBundle.getString("menu_view_left_panel_system_information"),
                 false,
-                new ShowHidePanelAction(this, SystemInformationPanel.class));
+                new ShowHidePanelAction(this, SystemInformationPanel.class),
+                KeyStroke.getKeyStroke(KeyEvent.VK_3, ActionEvent.CTRL_MASK));
 
         JMenu rightPanel = new JMenu(uiResourceBundle.getString("menu_view_right_panel"));
         viewMenu.add(rightPanel);
         JCheckBoxMenuItem hexPanel = addCheckBoxMenuItem(rightPanel,
                 uiResourceBundle.getString("menu_view_right_panel_stream_hex"),
                 false,
-                new ShowHidePanelAction(this, HexEditorPanel.class));
+                new ShowHidePanelAction(this, HexEditorPanel.class),
+                KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
         JCheckBoxMenuItem osfsPanel = addCheckBoxMenuItem(rightPanel,
                 uiResourceBundle.getString("menu_view_right_panel_os_fs"),
                 false,
-                new ShowHidePanelAction(this, FilesPanel.class));
+                new ShowHidePanelAction(this, FilesPanel.class),
+                KeyStroke.getKeyStroke(KeyEvent.VK_2, ActionEvent.ALT_MASK));
         JCheckBoxMenuItem streamPropertiesPanel = addCheckBoxMenuItem(rightPanel,
                 uiResourceBundle.getString("menu_view_right_panel_stream_properties"),
                 false,
-                new ShowHidePanelAction(this, PropertiesPanel.class));
+                new ShowHidePanelAction(this, PropertiesPanel.class),
+                KeyStroke.getKeyStroke(KeyEvent.VK_3, ActionEvent.ALT_MASK));
 
         viewMenu.addMenuListener(new ViewMenuListener(this, sectorsPanel, streamsPanel,
                 systemInformationPanel, hexPanel, osfsPanel, streamPropertiesPanel));
@@ -231,19 +222,59 @@ public class GuiView extends JFrame implements View {
         JMenu helpMenu = new JMenu(uiResourceBundle.getString("menu_help"));
         menuBar.add(helpMenu);
 
-        addMenuItem(helpMenu, uiResourceBundle.getString("menu_help_about"), null);
+        addMenuItem(helpMenu, uiResourceBundle.getString("menu_help_about"), null, "menu_about.png");
+    }
+
+    private JMenuItem addMenuItem(JMenuItem parent, String text, ActionListener actionListener,
+                                  String imageName) {
+
+        JMenuItem menuItem = new JMenuItem(text);
+        menuItem.addActionListener(actionListener);
+        if (imageName != null) {
+            menuItem.setIcon(ImageLoader.load(imageName));
+        }
+        parent.add(menuItem);
+        return menuItem;
     }
 
     private JMenuItem addMenuItem(JMenuItem parent, String text, ActionListener actionListener) {
+        return addMenuItem(parent, text, actionListener, null, null);
+    }
+
+    private JMenuItem addMenuItem(JMenuItem parent, String text, ActionListener actionListener,
+                                  KeyStroke keyStroke) {
+        return addMenuItem(parent, text, actionListener, null, keyStroke);
+    }
+
+    private JMenuItem addMenuItem(JMenuItem parent, String text, ActionListener actionListener,
+                                  String imageName, KeyStroke keyStroke) {
         JMenuItem menuItem = new JMenuItem(text);
         menuItem.addActionListener(actionListener);
+        if (imageName != null) {
+            menuItem.setIcon(ImageLoader.load(imageName));
+        }
+
+        if (keyStroke != null) {
+            menuItem.setAccelerator(keyStroke);
+        }
+
         parent.add(menuItem);
         return menuItem;
     }
 
     private JCheckBoxMenuItem addCheckBoxMenuItem(JMenuItem parent, String text, boolean checked, ActionListener actionListener) {
+        return addCheckBoxMenuItem(parent, text, checked, actionListener, null);
+    }
+
+    private JCheckBoxMenuItem addCheckBoxMenuItem(JMenuItem parent, String text, boolean checked,
+                                                  ActionListener actionListener, KeyStroke keyStroke) {
         JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(text, checked);
         menuItem.addActionListener(actionListener);
+
+        if (keyStroke != null) {
+            menuItem.setAccelerator(keyStroke);
+        }
+
         parent.add(menuItem);
         return menuItem;
     }

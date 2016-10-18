@@ -15,7 +15,7 @@ public class LinkedOLE2Entry extends OLE2Entry {
     private LinkedOLE2Entry prev = null;
     private LinkedOLE2Entry next = null;
 
-    private LinkedOLE2Entry(OLE2Entry entry, int fid) {
+    private LinkedOLE2Entry(final OLE2Entry entry, final int fid) {
         super(entry.getName(),
                 entry.getNameLength(),
                 entry.getType(),
@@ -98,16 +98,28 @@ public class LinkedOLE2Entry extends OLE2Entry {
      * @return file ID of the new entry.
      */
     @Deprecated
-    public int addChild(String name, EntryType type, int firstStreamSectorID, int size, ByteOrder byteOrder) {
+    public int addChild(final String name,
+                        final EntryType type,
+                        final int firstStreamSectorID,
+                        final int size,
+                        final ByteOrder byteOrder) {
+
+        if (!getType().equals(EntryType.ROOT_STORAGE) && !getType().equals(EntryType.USER_STORAGE)) {
+            throw new IllegalMethodCallException("Stream with type:" + getType().toString() + " can not contains children");
+        }
+
+        if (name == null) {
+            throw new IllegalArgumentException("Entry name must be not null");
+        }
+
         LinkedOLE2Entry last = this;
         while (last.next != null) {
             last = last.next;
         }
 
         LinkedOLE2Entry current = new LinkedOLE2Entry(
-                new OLE2Entry(
-                        new byte[64],
-                        64,
+                new OLE2Entry(Converter.stringToUtf16Bytes(name, byteOrder, true),
+                        name.length() * 2 + 2,
                         type,
                         EntryColor.RED,
                         -1,
@@ -138,7 +150,7 @@ public class LinkedOLE2Entry extends OLE2Entry {
     }
 
     @Deprecated
-    public void rename() {
+    public void rename(final String newName) {
 
     }
 
@@ -173,13 +185,17 @@ public class LinkedOLE2Entry extends OLE2Entry {
         return path;
     }
 
+    public boolean isStorage() {
+        return getType().equals(EntryType.ROOT_STORAGE) || getType().equals(EntryType.USER_STORAGE);
+    }
+
     /**
      * @return list of <code>{@link LinkedOLE2Entry}</code>, which contains in current storage,
      * order by type and name.
      * @throws IllegalMethodCallException if current entry is not a storage.
      */
     public List<LinkedOLE2Entry> entriesList() {
-        if (!getType().equals(EntryType.ROOT_STORAGE) && !getType().equals(EntryType.USER_STORAGE)) {
+        if (!isStorage()) {
             throw new IllegalMethodCallException("Stream with type:" + getType().toString() + " not contains children");
         }
 
@@ -290,7 +306,7 @@ public class LinkedOLE2Entry extends OLE2Entry {
 
         for (int i = 1; i < linked.length; i++) {
             if (!linked[i]) {
-                throw new IllegalArgumentException("Red-black tree cat not contains unlinked elements.");
+                throw new IllegalArgumentException("Red-black tree can not contains unlinked elements.");
             }
         }
 

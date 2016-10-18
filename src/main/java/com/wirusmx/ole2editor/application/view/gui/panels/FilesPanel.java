@@ -1,6 +1,7 @@
 package com.wirusmx.ole2editor.application.view.gui.panels;
 
-import com.wirusmx.ole2editor.application.view.View;
+import com.wirusmx.ole2editor.application.view.gui.GuiView;
+import com.wirusmx.ole2editor.application.view.gui.ImageLoader;
 import com.wirusmx.ole2editor.application.view.gui.wrappers.FileListElement;
 import com.wirusmx.ole2editor.application.view.gui.wrappers.JListElementWrapper;
 import com.wirusmx.ole2editor.application.view.gui.wrappers.JListParentElement;
@@ -12,41 +13,62 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.ResourceBundle;
 
-public class FilesPanel extends JPanel {
-    private DefaultListModel<JListElementWrapper> filesListModel = new DefaultListModel<>();
-    private JList<JListElementWrapper> filesList = new JList<>(filesListModel);
-    private JScrollPane filesListPane = new JScrollPane(filesList);
-    private JLabel filesListLabel = new JLabel(" ");
+public class FilesPanel extends MyPanel {
+    private ResourceBundle panelResourceBundle = ResourceBundle.getBundle("lang.files_panel");
 
-    private View view;
+    private DefaultListModel<JListElementWrapper> filesListModel;
+    private JList<JListElementWrapper> filesList;
+    private JScrollPane filesListPane;
+    private JLabel filesListLabel;
 
-    private File current = new File("").getAbsoluteFile();
+    private File current;
 
-    public FilesPanel(View view) {
-        this.view = view;
-        init();
+    public FilesPanel(GuiView view) {
+        super(view);
     }
 
     public void init() {
         setLayout(new BorderLayout());
 
+        filesListModel = new DefaultListModel<>();
+        filesList = new JList<>(filesListModel);
+        filesListPane = new JScrollPane(filesList);
+        filesListLabel = new JLabel(" ");
+
+        filesList.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof FileListElement) {
+                    File file = ((FileListElement) value).getObject();
+                    if (file.isDirectory()) {
+                        label.setIcon(ImageLoader.load("folder.png"));
+                    } else {
+                        label.setIcon(ImageLoader.load("stream.png"));
+                    }
+                }
+                return label;
+            }
+        });
         filesList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         filesList.addMouseListener(new GotoDirectory());
         filesList.setLayoutOrientation(JList.VERTICAL);
 
+        current = new File("").getAbsoluteFile();
         updateFilesList(current);
 
         add(filesListLabel, BorderLayout.NORTH);
         add(filesListPane, BorderLayout.CENTER);
     }
 
-    public void update(){
+    public void update() {
         updateFilesList(current);
     }
 
     public void updateFilesList(File file) {
-        if (file == null || !file.exists()){
+        if (file == null || !file.exists()) {
             return;
         }
 
@@ -91,7 +113,9 @@ public class FilesPanel extends JPanel {
             });
 
             for (File f : files) {
-                filesListModel.addElement(new FileListElement(f));
+                if (!f.isHidden()) {
+                    filesListModel.addElement(new FileListElement(f));
+                }
             }
         }
     }
@@ -113,6 +137,19 @@ public class FilesPanel extends JPanel {
             if (file.isDirectory()) {
                 updateFilesList(file);
                 filesListLabel.setText(file.getAbsolutePath());
+            } else {
+                int dialogResult = JOptionPane.showOptionDialog(view,
+                        String.format(panelResourceBundle.getString("files_panel_open_question"), file.getName()),
+                        "",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        new Object[]{panelResourceBundle.getString("files_panel_no"), panelResourceBundle.getString("files_panel_yes")},
+                        panelResourceBundle.getString("files_panel_yes"));
+
+                if (dialogResult == 1) {
+                    view.getController().openFile(file);
+                }
             }
         }
 

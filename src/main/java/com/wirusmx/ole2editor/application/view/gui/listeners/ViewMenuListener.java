@@ -1,13 +1,13 @@
 package com.wirusmx.ole2editor.application.view.gui.listeners;
 
-import com.wirusmx.ole2editor.application.view.View;
+import com.wirusmx.ole2editor.application.view.gui.GuiView;
 
 import javax.swing.*;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
 public class ViewMenuListener implements MenuListener {
-    private View view;
+    private GuiView view;
 
     JCheckBoxMenuItem sectorsPanel;
     JCheckBoxMenuItem streamsPanel;
@@ -16,7 +16,7 @@ public class ViewMenuListener implements MenuListener {
     JCheckBoxMenuItem osfsPanel;
     JCheckBoxMenuItem streamPropertiesPanel;
 
-    public ViewMenuListener(View view, JCheckBoxMenuItem sectorsPanel, JCheckBoxMenuItem streamsPanel,
+    public ViewMenuListener(GuiView view, JCheckBoxMenuItem sectorsPanel, JCheckBoxMenuItem streamsPanel,
                             JCheckBoxMenuItem systemInformationPanel, JCheckBoxMenuItem hexPanel,
                             JCheckBoxMenuItem osfsPanel, JCheckBoxMenuItem streamPropertiesPanel) {
         this.view = view;

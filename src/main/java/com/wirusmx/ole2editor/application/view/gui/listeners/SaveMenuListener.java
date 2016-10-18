@@ -1,17 +1,17 @@
 package com.wirusmx.ole2editor.application.view.gui.listeners;
 
-import com.wirusmx.ole2editor.application.view.View;
+import com.wirusmx.ole2editor.application.view.gui.GuiView;
 
 import javax.swing.*;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
 public class SaveMenuListener implements MenuListener {
-    private View view;
+    private GuiView view;
     private JMenuItem saveMenuItem;
     private  JMenuItem saveAsMenuItem;
 
-    public SaveMenuListener(View view, JMenuItem saveMenuItem, JMenuItem saveAsMenuItem) {
+    public SaveMenuListener(GuiView view, JMenuItem saveMenuItem, JMenuItem saveAsMenuItem) {
         this.view = view;
         this.saveMenuItem = saveMenuItem;
         this.saveAsMenuItem = saveAsMenuItem;

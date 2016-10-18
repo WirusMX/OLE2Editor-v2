@@ -34,13 +34,14 @@ public class Model {
     }
 
     public LinkedOLE2Entry getStreamsTree() throws IOException, IllegalFileStructure {
-        OLE2InputStream is = new OLE2InputStream(currentFile.getAbsolutePath());
-        List<OLE2Entry> entries = new ArrayList<>();
+        try (OLE2InputStream is = new OLE2InputStream(currentFile.getAbsolutePath())) {
+            List<OLE2Entry> entries = new ArrayList<>();
 
-        while (is.hasNextEntry()) {
-            entries.add(is.readNextEntry());
+            while (is.hasNextEntry()) {
+                entries.add(is.readNextEntry());
+            }
+
+            return LinkedOLE2Entry.buildByEntriesList(entries);
         }
-
-        return LinkedOLE2Entry.buildByEntriesList(entries);
     }
 }

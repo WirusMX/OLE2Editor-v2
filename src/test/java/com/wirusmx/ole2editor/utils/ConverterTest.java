@@ -35,6 +35,11 @@ public class ConverterTest extends Assert {
         Converter.bytesToInt16(ByteOrder.BIG_ENDIAN, new byte[3]);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void bytesToInt16ConverterExceptionTest3() {
+        Converter.bytesToInt16(ByteOrder.BIG_ENDIAN, null);
+    }
+
     @Test
     public void int16ToBytesTest() {
         byte[] expectedBytes = new BigInteger("" + Short.MAX_VALUE).toByteArray();
@@ -69,6 +74,11 @@ public class ConverterTest extends Assert {
         Converter.bytesToInt32(ByteOrder.LITTLE_ENDIAN, new byte[5]);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void bytesToInt32ConverterExceptionTest3() {
+        Converter.bytesToInt32(ByteOrder.LITTLE_ENDIAN, null);
+    }
+
     @Test
     public void int32ToBytesTest() {
         byte[] expectedBytes = new BigInteger("" + Integer.MAX_VALUE).toByteArray();
@@ -100,6 +110,11 @@ public class ConverterTest extends Assert {
     @Test(expected = IllegalArgumentException.class)
     public void bytesToInt64ConverterExceptionTest2() {
         Converter.bytesToInt64(ByteOrder.LITTLE_ENDIAN, new byte[9]);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void bytesToInt64ConverterExceptionTest3() {
+        Converter.bytesToInt64(ByteOrder.LITTLE_ENDIAN, null);
     }
 
     @Test

@@ -1,6 +1,6 @@
 package com.wirusmx.ole2editor.application.view.gui.actions;
 
-import com.wirusmx.ole2editor.application.view.View;
+import com.wirusmx.ole2editor.application.view.gui.GuiView;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -8,9 +8,9 @@ import java.awt.event.ActionListener;
 
 public class ShowHidePanelAction implements ActionListener{
     private Class panelClass;
-    private View view;
+    private GuiView view;
 
-    public ShowHidePanelAction(View view, Class panelClass) {
+    public ShowHidePanelAction(GuiView view, Class panelClass) {
         this.panelClass = panelClass;
         this.view = view;
     }

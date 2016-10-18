@@ -73,6 +73,9 @@ public class OLE2EntryTest extends Assert {
         new OLE2Entry(buffer, ByteOrder.BIG_ENDIAN);
     }
 
+    /**
+     * Entry name array is null
+     */
     @Test(expected = IllegalArgumentException.class)
     public void ole2EntryConstructorTest8() {
         new OLE2Entry(null,
@@ -92,6 +95,9 @@ public class OLE2EntryTest extends Assert {
                 ByteOrder.LITTLE_ENDIAN);
     }
 
+    /**
+     * Entry name array has length more then 64
+     */
     @Test(expected = IllegalArgumentException.class)
     public void ole2EntryConstructorTest9() {
         new OLE2Entry(new byte[66],
@@ -111,6 +117,9 @@ public class OLE2EntryTest extends Assert {
                 ByteOrder.LITTLE_ENDIAN);
     }
 
+    /**
+     * Entry name argument has value more then 64
+     */
     @Test(expected = IllegalArgumentException.class)
     public void ole2EntryConstructorTest10() {
         new OLE2Entry(new byte[64],
@@ -130,6 +139,9 @@ public class OLE2EntryTest extends Assert {
                 ByteOrder.LITTLE_ENDIAN);
     }
 
+    /**
+     * Entry name argument has value less then 0
+     */
     @Test(expected = IllegalArgumentException.class)
     public void ole2EntryConstructorTest11() {
         new OLE2Entry(new byte[64],

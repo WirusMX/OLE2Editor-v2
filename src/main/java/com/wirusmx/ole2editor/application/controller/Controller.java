@@ -1,9 +1,9 @@
 package com.wirusmx.ole2editor.application.controller;
 
-import com.wirusmx.ole2editor.exceptions.IllegalFileStructure;
 import com.wirusmx.ole2editor.application.model.Model;
 import com.wirusmx.ole2editor.application.view.FileChooser;
-import com.wirusmx.ole2editor.application.view.View;
+import com.wirusmx.ole2editor.application.view.gui.GuiView;
+import com.wirusmx.ole2editor.exceptions.IllegalFileStructure;
 import com.wirusmx.ole2editor.utils.LinkedOLE2Entry;
 
 import javax.swing.*;
@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class Controller {
     private Model model;
-    private View view;
+    private GuiView view;
 
     /**
      * Construct a new controller with specified model and view
@@ -20,7 +20,7 @@ public class Controller {
      * @param model of application
      * @param view  current application view
      */
-    public Controller(Model model, View view) {
+    public Controller(Model model, GuiView view) {
         this.model = model;
         this.view = view;
     }
@@ -35,17 +35,20 @@ public class Controller {
         System.exit(0);
     }
 
-    public void openFile() {
-        FileChooser fileChooser = view.getFileChooser();
-        int dialogResult = fileChooser.showOpenDialog();
+    public void openFile(JFrame frame) {
+        JFileChooser fileChooser = new JFileChooser();
+        int dialogResult = fileChooser.showOpenDialog(frame);
         if (dialogResult != JFileChooser.APPROVE_OPTION) {
             return;
         }
 
-        File currentFile = fileChooser.getSelectedFile();
-        model.setCurrentFile(currentFile);
+        openFile(fileChooser.getSelectedFile());
+    }
 
-        view.setTitle("[" + currentFile.getName() + "]");
+    public void openFile(File file) {
+        model.setCurrentFile(file);
+
+        view.setTitle("[" + file.getName() + "]");
 
         view.update();
     }
@@ -65,4 +68,6 @@ public class Controller {
     public LinkedOLE2Entry getStreamsTree() throws IOException, IllegalFileStructure {
         return model.getStreamsTree();
     }
+
+
 }

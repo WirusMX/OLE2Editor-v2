@@ -1,6 +1,8 @@
 package com.wirusmx.ole2editor.application.view.gui.panels;
 
-import com.wirusmx.ole2editor.application.view.View;
+import com.wirusmx.ole2editor.application.view.gui.DefaultExceptionsHandler;
+import com.wirusmx.ole2editor.application.view.gui.GuiView;
+import com.wirusmx.ole2editor.application.view.gui.ImageLoader;
 import com.wirusmx.ole2editor.application.view.gui.wrappers.JListElementWrapper;
 import com.wirusmx.ole2editor.application.view.gui.wrappers.JListParentElement;
 import com.wirusmx.ole2editor.application.view.gui.wrappers.StreamsListElement;
@@ -10,6 +12,7 @@ import com.wirusmx.ole2editor.utils.LinkedOLE2Entry;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
@@ -17,38 +20,70 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
 
-public class StreamsPanel extends JPanel {
-    private JSplitPane splitPane = new JSplitPane();
+public class StreamsPanel extends MyPanel {
+    private JSplitPane splitPane;
 
-    private DefaultMutableTreeNode root = new DefaultMutableTreeNode("#root");
-    private DefaultTreeModel treeModel = new DefaultTreeModel(root);
-    private JTree streamsTree = new JTree(treeModel);
-    private JScrollPane streamsTreeScrollPane = new JScrollPane(streamsTree);
+    private DefaultMutableTreeNode root;
+    private DefaultTreeModel treeModel;
+    private JTree streamsTree;
+    private JScrollPane streamsTreeScrollPane;
 
-    private DefaultListModel<JListElementWrapper> streamsListModel = new DefaultListModel<>();
-    private JList<JListElementWrapper> streamsList = new JList<>(streamsListModel);
-    private JScrollPane streamsListScrollPane = new JScrollPane(streamsList);
-    private JLabel streamsListLabel = new JLabel(" ");
-    private JPanel rightPanel = new JPanel(new BorderLayout());
+    private DefaultListModel<JListElementWrapper> streamsListModel;
+    private JList<JListElementWrapper> streamsList;
+    private JScrollPane streamsListScrollPane;
+    private JLabel streamsListLabel;
+    private JPanel rightPanel;
 
-    private View parent;
 
     private LinkedOLE2Entry tree = null;
     private LinkedOLE2Entry current = null;
 
-    public StreamsPanel(View parent) {
-        this.parent = parent;
-        init();
+    public StreamsPanel(GuiView view) {
+        super(view);
     }
 
     public void init() {
         setLayout(new BorderLayout());
 
+        splitPane = new JSplitPane();
+
+        root = new DefaultMutableTreeNode("#root");
+        treeModel = new DefaultTreeModel(root);
+        streamsTree = new JTree(treeModel);
+        streamsTreeScrollPane = new JScrollPane(streamsTree);
+
+        ImageIcon folderIcon = ImageLoader.load("folder.png");
+        DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
+        renderer.setLeafIcon(folderIcon);
+        renderer.setOpenIcon(folderIcon);
+        renderer.setClosedIcon(folderIcon);
+        streamsTree.setCellRenderer(renderer);
         streamsTree.setRootVisible(false);
         streamsTree.setShowsRootHandles(true);
         streamsTree.addMouseListener(new GotoStorage());
         splitPane.setLeftComponent(streamsTreeScrollPane);
 
+        streamsListModel = new DefaultListModel<>();
+        streamsList = new JList<>(streamsListModel);
+        streamsListScrollPane = new JScrollPane(streamsList);
+        streamsListLabel = new JLabel(" ");
+        rightPanel = new JPanel(new BorderLayout());
+        streamsList.setCellRenderer(new DefaultListCellRenderer(){
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof StreamsListElement) {
+                    LinkedOLE2Entry entry = ((StreamsListElement) value).getObject();
+                    if (entry.isStorage()) {
+                        label.setIcon(ImageLoader.load("folder.png"));
+                    } else {
+                        label.setIcon(ImageLoader.load("stream.png"));
+                    }
+                }
+                return label;
+            }
+        });
         streamsList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         streamsList.addMouseListener(new GotoStorage());
         streamsList.setLayoutOrientation(JList.VERTICAL);
@@ -63,13 +98,11 @@ public class StreamsPanel extends JPanel {
     public void update() {
         if (tree == null) {
             try {
-                tree = parent.getController().getStreamsTree();
+                tree = view.getController().getStreamsTree();
                 updateTree(root, tree);
                 updateList(tree);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (IllegalFileStructure illegalFileStructure) {
-                illegalFileStructure.printStackTrace();
+            } catch (Exception e) {
+                DefaultExceptionsHandler.handle(view, e);
             }
         }
     }
