@@ -16,6 +16,9 @@ public class Model {
     private Controller controller;
     private boolean modified = false;
     private File currentFile;
+    private LinkedOLE2Entry currentStream;
+    private int currentSector;
+
 
     public boolean isModified() {
         return modified && currentFile != null;
@@ -34,14 +37,26 @@ public class Model {
     }
 
     public LinkedOLE2Entry getStreamsTree() throws IOException, IllegalFileStructure {
-        try (OLE2InputStream is = new OLE2InputStream(currentFile.getAbsolutePath())) {
-            List<OLE2Entry> entries = new ArrayList<>();
+        List<OLE2Entry> entries = getOle2EntriesList();
 
+        return LinkedOLE2Entry.buildByEntriesList(entries);
+    }
+
+    public LinkedOLE2Entry getWidowedStreamsList() throws IOException, IllegalFileStructure {
+        List<OLE2Entry> entries = getOle2EntriesList();
+        LinkedOLE2Entry linkedEntries = LinkedOLE2Entry.buildByEntriesList(entries);
+
+        return null;
+    }
+
+    private List<OLE2Entry> getOle2EntriesList() throws IOException, IllegalFileStructure {
+        List<OLE2Entry> entries = new ArrayList<>();
+
+        try (OLE2InputStream is = new OLE2InputStream(currentFile.getAbsolutePath())) {
             while (is.hasNextEntry()) {
                 entries.add(is.readNextEntry());
             }
-
-            return LinkedOLE2Entry.buildByEntriesList(entries);
         }
+        return entries;
     }
 }

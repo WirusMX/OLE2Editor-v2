@@ -3,10 +3,9 @@ package com.wirusmx.ole2editor.application.view.gui.panels;
 import com.wirusmx.ole2editor.application.view.gui.DefaultExceptionsHandler;
 import com.wirusmx.ole2editor.application.view.gui.GuiView;
 import com.wirusmx.ole2editor.application.view.gui.ImageLoader;
-import com.wirusmx.ole2editor.application.view.gui.wrappers.JListElementWrapper;
+import com.wirusmx.ole2editor.application.view.gui.listeners.PanelListener;
+import com.wirusmx.ole2editor.application.view.gui.wrappers.FileListElement;
 import com.wirusmx.ole2editor.application.view.gui.wrappers.JListParentElement;
-import com.wirusmx.ole2editor.application.view.gui.wrappers.StreamsListElement;
-import com.wirusmx.ole2editor.exceptions.IllegalFileStructure;
 import com.wirusmx.ole2editor.io.OLE2Entry;
 import com.wirusmx.ole2editor.utils.LinkedOLE2Entry;
 
@@ -16,27 +15,25 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.IOException;
+import java.io.File;
 
 public class StreamsPanel extends MyPanel {
+
     private JSplitPane splitPane;
 
     private DefaultMutableTreeNode root;
     private DefaultTreeModel treeModel;
     private JTree streamsTree;
-    private JScrollPane streamsTreeScrollPane;
 
-    private DefaultListModel<JListElementWrapper> streamsListModel;
-    private JList<JListElementWrapper> streamsList;
-    private JScrollPane streamsListScrollPane;
+    private DefaultListModel<Object> streamsListModel;
     private JLabel streamsListLabel;
-    private JPanel rightPanel;
 
 
-    private LinkedOLE2Entry tree = null;
-    private LinkedOLE2Entry current = null;
+    private LinkedOLE2Entry currentStorage = null;
 
     public StreamsPanel(GuiView view) {
         super(view);
@@ -47,85 +44,90 @@ public class StreamsPanel extends MyPanel {
 
         splitPane = new JSplitPane();
 
-        root = new DefaultMutableTreeNode("#root");
+        root = new DefaultMutableTreeNode("");
         treeModel = new DefaultTreeModel(root);
         streamsTree = new JTree(treeModel);
-        streamsTreeScrollPane = new JScrollPane(streamsTree);
+        JScrollPane streamsTreeScrollPane = new JScrollPane(streamsTree);
 
-        ImageIcon folderIcon = ImageLoader.load("folder.png");
-        DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
-        renderer.setLeafIcon(folderIcon);
-        renderer.setOpenIcon(folderIcon);
-        renderer.setClosedIcon(folderIcon);
-        streamsTree.setCellRenderer(renderer);
-        streamsTree.setRootVisible(false);
+        streamsTree.setCellRenderer(new MyDefaultTreeCellRenderer());
+        streamsTree.setRootVisible(true);
         streamsTree.setShowsRootHandles(true);
-        streamsTree.addMouseListener(new GotoStorage());
+        streamsTree.addMouseListener(new MyMouseListener());
         splitPane.setLeftComponent(streamsTreeScrollPane);
 
         streamsListModel = new DefaultListModel<>();
-        streamsList = new JList<>(streamsListModel);
-        streamsListScrollPane = new JScrollPane(streamsList);
+        JList<Object> streamsList = new JList<>(streamsListModel);
+        JScrollPane streamsListScrollPane = new JScrollPane(streamsList);
         streamsListLabel = new JLabel(" ");
-        rightPanel = new JPanel(new BorderLayout());
-        streamsList.setCellRenderer(new DefaultListCellRenderer(){
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                                                          boolean isSelected, boolean cellHasFocus) {
-                JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof StreamsListElement) {
-                    LinkedOLE2Entry entry = ((StreamsListElement) value).getObject();
-                    if (entry.isStorage()) {
-                        label.setIcon(ImageLoader.load("folder.png"));
-                    } else {
-                        label.setIcon(ImageLoader.load("stream.png"));
-                    }
-                }
-                return label;
-            }
-        });
+        JPanel rightPanel = new JPanel(new BorderLayout());
+        streamsList.setCellRenderer(new MyDefaultListCellRenderer());
         streamsList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        streamsList.addMouseListener(new GotoStorage());
+        streamsList.addMouseListener(new MyMouseListener());
         streamsList.setLayoutOrientation(JList.VERTICAL);
         rightPanel.add(streamsListLabel, BorderLayout.NORTH);
         rightPanel.add(streamsListScrollPane, BorderLayout.CENTER);
         splitPane.setRightComponent(rightPanel);
+        splitPane.addComponentListener(new PanelListener(splitPane));
 
         splitPane.setDividerSize(4);
         add(splitPane, BorderLayout.CENTER);
+
     }
 
     public void update() {
-        if (tree == null) {
+        if (currentStorage == null) {
             try {
-                tree = view.getController().getStreamsTree();
-                updateTree(root, tree);
-                updateList(tree);
+                currentStorage = view.getController().getStreamsTree();
+                updateTree();
+                updateList(currentStorage);
             } catch (Exception e) {
                 DefaultExceptionsHandler.handle(view, e);
             }
         }
     }
 
-    private void updateTree(DefaultMutableTreeNode root, LinkedOLE2Entry tree) {
-        if (tree == null) {
+    @Override
+    public void reset() {
+        currentStorage = null;
+        root.removeAllChildren();
+        root.setUserObject("");
+        treeModel.reload();
+        streamsTree.removeAll();
+
+        streamsListModel.clear();
+
+        streamsListLabel.setText("");
+
+        splitPane.setDividerLocation(0.5);
+
+        update();
+    }
+
+    private void updateTree() {
+        root.setUserObject(new FileListElement(view.getController().getCurrentFile()));
+        updateTree(root, currentStorage);
+        treeModel.insertNodeInto(new DefaultMutableTreeNode(new SystemInformation("System information")), root,
+                root.getChildCount());
+    }
+
+    private void updateTree(DefaultMutableTreeNode parent, LinkedOLE2Entry newNode) {
+        if (newNode == null) {
             return;
         }
 
-        if (!tree.getType().equals(OLE2Entry.EntryType.ROOT_STORAGE)
-                && !tree.getType().equals(OLE2Entry.EntryType.USER_STORAGE)) {
+        if (!newNode.isStorage()) {
             return;
         }
 
-        DefaultMutableTreeNode node = new DefaultMutableTreeNode(tree);
-        treeModel.insertNodeInto(node, root, root.getChildCount());
+        DefaultMutableTreeNode newMutableTreeNode = new DefaultMutableTreeNode(newNode);
+        treeModel.insertNodeInto(newMutableTreeNode, parent, parent.getChildCount());
 
-        java.util.List<LinkedOLE2Entry> entries = tree.entriesList();
+        java.util.List<LinkedOLE2Entry> entries = newNode.entriesList();
         if (entries != null) {
             for (LinkedOLE2Entry e : entries) {
                 if (e.getType().equals(OLE2Entry.EntryType.USER_STORAGE)) {
                     DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(e);
-                    treeModel.insertNodeInto(newChild, node, node.getChildCount());
+                    treeModel.insertNodeInto(newChild, newMutableTreeNode, newMutableTreeNode.getChildCount());
                     streamsTree.scrollPathToVisible(new TreePath(newChild.getPath()));
                     updateTree(newChild, e.getChild());
                 }
@@ -134,47 +136,146 @@ public class StreamsPanel extends MyPanel {
 
     }
 
-    private void updateList(LinkedOLE2Entry tree) {
-        current = tree;
-        streamsListLabel.setText(tree.getAbsolutePath());
+    private void updateList() {
+        streamsListLabel.setText("System information");
         streamsListModel.clear();
-        if (tree.getParent() != null) {
-            streamsListModel.addElement(new JListParentElement<>(tree.getParent()));
+
+        streamsListModel.addElement(new SystemInformation("HEADER"));
+        streamsListModel.addElement(new SystemInformation("MSAT"));
+        streamsListModel.addElement(new SystemInformation("SAT"));
+        streamsListModel.addElement(new SystemInformation("SSAT"));
+    }
+
+    private void updateList(LinkedOLE2Entry storage) {
+        streamsListLabel.setText(storage.getAbsolutePath());
+        streamsListModel.clear();
+        if (storage.getParent() != null) {
+            streamsListModel.addElement(new JListParentElement<>(storage.getParent()));
         }
 
-        for (LinkedOLE2Entry e : tree.entriesList()) {
-            streamsListModel.addElement(new StreamsListElement(e));
+        for (LinkedOLE2Entry e : storage.entriesList()) {
+            streamsListModel.addElement(e);
         }
     }
 
-    private class GotoStorage implements MouseListener {
+    private class SystemInformation {
+        private final String type;
+
+        public SystemInformation(String type) {
+            this.type = type;
+        }
+
         @Override
-        public void mouseClicked(MouseEvent e) {
-            LinkedOLE2Entry tree = null;
+        public String toString() {
+            return type;
+        }
+    }
 
-
-            if (e.getSource() instanceof JTree) {
-                JTree jTree = (JTree) e.getSource();
-                DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) jTree.getLastSelectedPathComponent();
-                if (lastSelectedPathComponent != null &&
-                        lastSelectedPathComponent.getUserObject() instanceof LinkedOLE2Entry) {
-                    tree = (LinkedOLE2Entry) lastSelectedPathComponent.getUserObject();
+    private class MyDefaultTreeCellRenderer extends DefaultTreeCellRenderer {
+        @Override
+        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+            JLabel label = (JLabel) super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+            Object nodeObject = ((DefaultMutableTreeNode) value).getUserObject();
+            if (nodeObject instanceof LinkedOLE2Entry) {
+                ImageIcon icon = ImageLoader.load("folder.png");
+                if (icon != null) {
+                    label.setIcon(icon);
                 }
             }
 
-            if (e.getSource() instanceof JList && e.getClickCount() == 2) {
-                JList<JListElementWrapper<LinkedOLE2Entry>> list = (JList<JListElementWrapper<LinkedOLE2Entry>>) e.getSource();
-                tree = list.getSelectedValue().getObject();
+            if (nodeObject instanceof SystemInformation) {
+                ImageIcon icon = ImageLoader.load("system.png");
+                if (icon != null) {
+                    label.setIcon(icon);
+                }
             }
 
-            if (tree == null) {
+            if (nodeObject instanceof FileListElement) {
+                File file = ((FileListElement) nodeObject).getObject();
+                ImageIcon icon = ImageLoader.loadByExtension(file.getName(), true);
+                if (icon != null) {
+                    label.setIcon(icon);
+                }
+            }
+
+            return label;
+        }
+    }
+
+    private class MyDefaultListCellRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                      boolean isSelected, boolean cellHasFocus) {
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            if (value instanceof LinkedOLE2Entry) {
+                LinkedOLE2Entry entry = (LinkedOLE2Entry) value;
+                if (entry.isStorage()) {
+                    label.setIcon(ImageLoader.load("folder.png"));
+                    label.setFont(new Font(label.getFont().getName(), Font.BOLD, label.getFont().getSize()));
+
+                } else {
+                    if (entry.getType().equals(OLE2Entry.EntryType.EMPTY) && !entry.isUnlincked()) {
+                        label.setIcon(ImageLoader.load("removed_stream.png"));
+                        label.setFont(new Font(label.getFont().getName(), Font.ITALIC, label.getFont().getSize()));
+                    } else {
+                        label.setIcon(ImageLoader.load("stream.png"));
+                    }
+                }
+            }
+
+            if (value instanceof SystemInformation) {
+                ImageIcon icon = ImageLoader.load("system.png");
+                if (icon != null) {
+                    label.setIcon(icon);
+                }
+            }
+
+            if (value instanceof SystemInformation) {
+                //TODO
+            }
+
+            return label;
+        }
+    }
+
+    private class MyMouseListener implements MouseListener {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            if (e.getSource() instanceof JTree) {
+                JTree jTree = (JTree) e.getSource();
+                DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) jTree.getLastSelectedPathComponent();
+                if (lastSelectedPathComponent != null) {
+                    if (lastSelectedPathComponent.getUserObject() instanceof LinkedOLE2Entry) {
+                        LinkedOLE2Entry node = (LinkedOLE2Entry) lastSelectedPathComponent.getUserObject();
+                        if (node != null) {
+                            updateList(node);
+                        }
+                    }
+
+                    if (lastSelectedPathComponent.getUserObject() instanceof SystemInformation) {
+                        updateList();
+                    }
+                }
+
                 return;
             }
 
-            if (tree.getChild() != null) {
-                updateList(tree);
+            if (e.getSource() instanceof JList && e.getClickCount() == 2) {
+                JList list = (JList) e.getSource();
+                if (list.getSelectedValue() instanceof LinkedOLE2Entry) {
+                    LinkedOLE2Entry node = (LinkedOLE2Entry) list.getSelectedValue();
+                    if (node != null) {
+                        if (node.isStorage()) {
+                            updateList(node);
+                        } else {
+                            // TODO double click on stream
+                        }
+                    }
+                }
 
-                streamsListLabel.setText(tree.getAbsolutePath());
+                if (list.getSelectedValue() instanceof SystemInformation) {
+                    // TODO double click on system information
+                }
             }
         }
 

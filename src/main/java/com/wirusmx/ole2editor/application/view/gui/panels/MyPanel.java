@@ -15,4 +15,6 @@ public abstract class MyPanel extends JPanel {
     public abstract void init();
 
     public abstract void update();
+
+    public abstract void reset();
 }

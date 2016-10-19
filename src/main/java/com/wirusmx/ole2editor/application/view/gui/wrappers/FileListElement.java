@@ -15,9 +15,6 @@ public class FileListElement implements JListElementWrapper<File> {
 
     @Override
     public String toString() {
-        if (file.isDirectory()) {
-            return "[" + file.getName() + "]";
-        }
         return file.getName();
     }
 }

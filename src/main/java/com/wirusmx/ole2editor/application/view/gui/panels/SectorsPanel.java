@@ -20,4 +20,9 @@ public class SectorsPanel extends MyPanel {
     public void update() {
 
     }
+
+    @Override
+    public void reset() {
+
+    }
 }

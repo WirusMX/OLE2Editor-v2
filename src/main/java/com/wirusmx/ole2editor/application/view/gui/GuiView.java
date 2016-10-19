@@ -4,15 +4,14 @@ import com.wirusmx.ole2editor.application.controller.Controller;
 import com.wirusmx.ole2editor.application.view.gui.actions.ExitAction;
 import com.wirusmx.ole2editor.application.view.gui.actions.OpenAction;
 import com.wirusmx.ole2editor.application.view.gui.actions.ShowHidePanelAction;
+import com.wirusmx.ole2editor.application.view.gui.listeners.PanelListener;
 import com.wirusmx.ole2editor.application.view.gui.listeners.SaveMenuListener;
 import com.wirusmx.ole2editor.application.view.gui.listeners.ViewMenuListener;
 import com.wirusmx.ole2editor.application.view.gui.panels.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.util.ResourceBundle;
 
 public class GuiView extends JFrame {
@@ -22,7 +21,7 @@ public class GuiView extends JFrame {
 
     private Controller controller;
 
-    private JSplitPane splitPane2 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+    private JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
     public void setController(Controller controller) {
         this.controller = controller;
@@ -40,30 +39,26 @@ public class GuiView extends JFrame {
     public int getVisiblePanelsCode() {
         int result = 0;
 
-        if (splitPane2.getLeftComponent() != null) {
-            if (splitPane2.getLeftComponent() instanceof SectorsPanel) {
+        if (splitPane.getLeftComponent() != null) {
+            if (splitPane.getLeftComponent() instanceof SectorsPanel) {
                 result += 1;
             }
 
-            if (splitPane2.getLeftComponent() instanceof StreamsPanel) {
+            if (splitPane.getLeftComponent() instanceof StreamsPanel) {
                 result += 2;
-            }
-
-            if (splitPane2.getLeftComponent() instanceof SystemInformationPanel) {
-                result += 4;
             }
         }
 
-        if (splitPane2.getRightComponent() != null) {
-            if (splitPane2.getRightComponent() instanceof HexEditorPanel) {
+        if (splitPane.getRightComponent() != null) {
+            if (splitPane.getRightComponent() instanceof HexEditorPanel) {
                 result += 8;
             }
 
-            if (splitPane2.getRightComponent() instanceof FilesPanel) {
+            if (splitPane.getRightComponent() instanceof FilesPanel) {
                 result += 16;
             }
 
-            if (splitPane2.getRightComponent() instanceof PropertiesPanel) {
+            if (splitPane.getRightComponent() instanceof PropertiesPanel) {
                 result += 32;
             }
         }
@@ -73,44 +68,39 @@ public class GuiView extends JFrame {
 
     public void hidePanel(Class panelClass) {
         if (panelClass == SectorsPanel.class
-                || panelClass == StreamsPanel.class
-                || panelClass == SystemInformationPanel.class) {
+                || panelClass == StreamsPanel.class) {
 
-            splitPane2.setLeftComponent(null);
+            splitPane.setLeftComponent(null);
         }
 
         if (panelClass == HexEditorPanel.class
                 || panelClass == FilesPanel.class
                 || panelClass == PropertiesPanel.class) {
 
-            splitPane2.setRightComponent(null);
+            splitPane.setRightComponent(null);
         }
     }
 
 
     public void showPanel(Class panelClass) {
         if (panelClass == SectorsPanel.class) {
-            splitPane2.setLeftComponent(new SectorsPanel(this));
+            splitPane.setLeftComponent(new SectorsPanel(this));
         }
 
         if (panelClass == StreamsPanel.class) {
-            splitPane2.setLeftComponent(new StreamsPanel(this));
-        }
-
-        if (panelClass == SystemInformationPanel.class) {
-            splitPane2.setLeftComponent(new SystemInformationPanel(this));
+            splitPane.setLeftComponent(new StreamsPanel(this));
         }
 
         if (panelClass == HexEditorPanel.class) {
-            splitPane2.setRightComponent(new HexEditorPanel(this));
+            splitPane.setRightComponent(new HexEditorPanel(this));
         }
 
         if (panelClass == FilesPanel.class) {
-            splitPane2.setRightComponent(new FilesPanel(this));
+            splitPane.setRightComponent(new FilesPanel(this));
         }
 
         if (panelClass == PropertiesPanel.class) {
-            splitPane2.setRightComponent(new PropertiesPanel(this));
+            splitPane.setRightComponent(new PropertiesPanel(this));
         }
     }
 
@@ -118,7 +108,6 @@ public class GuiView extends JFrame {
         super.setTitle(frameName);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setSize(800, 600);
-        setExtendedState(MAXIMIZED_BOTH);
 
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -127,24 +116,40 @@ public class GuiView extends JFrame {
 
         initMainMenuBar();
 
-        splitPane2.setLeftComponent(new StreamsPanel(this));
-        splitPane2.setRightComponent(new FilesPanel(this));
-        splitPane2.setDividerSize(10);
-        add(splitPane2, BorderLayout.CENTER);
+        add(splitPane, BorderLayout.CENTER);
+        splitPane.setLeftComponent(new StreamsPanel(this));
+        splitPane.setRightComponent(new FilesPanel(this));
+        splitPane.setDividerSize(10);
+        splitPane.addComponentListener(new PanelListener(splitPane));
 
         setVisible(true);
+        setExtendedState(MAXIMIZED_BOTH);
     }
 
     public void update() {
-        MyPanel left = (MyPanel) splitPane2.getLeftComponent();
+        MyPanel left = (MyPanel) splitPane.getLeftComponent();
         if (left != null){
             left.update();
         }
 
-        MyPanel right = (MyPanel) splitPane2.getRightComponent();
+        MyPanel right = (MyPanel) splitPane.getRightComponent();
         if (right != null){
             right.update();
         }
+    }
+
+    public void reset(){
+        splitPane.setDividerLocation(0.5);
+        MyPanel left = (MyPanel) splitPane.getLeftComponent();
+        if (left != null){
+            left.reset();
+        }
+
+        MyPanel right = (MyPanel) splitPane.getRightComponent();
+        if (right != null){
+            right.reset();
+        }
+
     }
 
     private void initMainMenuBar() {
@@ -161,7 +166,7 @@ public class GuiView extends JFrame {
         JMenu fileMenu = new JMenu(uiResourceBundle.getString("menu_file"));
         menuBar.add(fileMenu);
 
-        addMenuItem(fileMenu, uiResourceBundle.getString("menu_file_new"), null, KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
+        addMenuItem(fileMenu, uiResourceBundle.getString("menu_file_new"), null, "file.png", KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
         addMenuItem(fileMenu, uiResourceBundle.getString("menu_file_open"), new OpenAction(this), "menu_open.png", KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
         JMenuItem menuSave = addMenuItem(fileMenu, uiResourceBundle.getString("menu_file_save"), null, "menu_save.png", KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
         JMenuItem menuSaveAs = addMenuItem(fileMenu, uiResourceBundle.getString("menu_file_save_as"), null, "menu_saveas.png", KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
@@ -186,11 +191,6 @@ public class GuiView extends JFrame {
                 false,
                 new ShowHidePanelAction(this, StreamsPanel.class),
                 KeyStroke.getKeyStroke(KeyEvent.VK_2, ActionEvent.CTRL_MASK));
-        JCheckBoxMenuItem systemInformationPanel = addCheckBoxMenuItem(leftPanel,
-                uiResourceBundle.getString("menu_view_left_panel_system_information"),
-                false,
-                new ShowHidePanelAction(this, SystemInformationPanel.class),
-                KeyStroke.getKeyStroke(KeyEvent.VK_3, ActionEvent.CTRL_MASK));
 
         JMenu rightPanel = new JMenu(uiResourceBundle.getString("menu_view_right_panel"));
         viewMenu.add(rightPanel);
@@ -211,7 +211,7 @@ public class GuiView extends JFrame {
                 KeyStroke.getKeyStroke(KeyEvent.VK_3, ActionEvent.ALT_MASK));
 
         viewMenu.addMenuListener(new ViewMenuListener(this, sectorsPanel, streamsPanel,
-                systemInformationPanel, hexPanel, osfsPanel, streamPropertiesPanel));
+                hexPanel, osfsPanel, streamPropertiesPanel));
 
         viewMenu.addSeparator();
 
@@ -228,13 +228,8 @@ public class GuiView extends JFrame {
     private JMenuItem addMenuItem(JMenuItem parent, String text, ActionListener actionListener,
                                   String imageName) {
 
-        JMenuItem menuItem = new JMenuItem(text);
-        menuItem.addActionListener(actionListener);
-        if (imageName != null) {
-            menuItem.setIcon(ImageLoader.load(imageName));
-        }
-        parent.add(menuItem);
-        return menuItem;
+        return addMenuItem(parent, text, actionListener, imageName, null);
+
     }
 
     private JMenuItem addMenuItem(JMenuItem parent, String text, ActionListener actionListener) {
@@ -251,7 +246,11 @@ public class GuiView extends JFrame {
         JMenuItem menuItem = new JMenuItem(text);
         menuItem.addActionListener(actionListener);
         if (imageName != null) {
-            menuItem.setIcon(ImageLoader.load(imageName));
+
+            ImageIcon icon = ImageLoader.load(imageName);
+            if (icon != null) {
+                menuItem.setIcon(icon);
+            }
         }
 
         if (keyStroke != null) {
@@ -260,10 +259,6 @@ public class GuiView extends JFrame {
 
         parent.add(menuItem);
         return menuItem;
-    }
-
-    private JCheckBoxMenuItem addCheckBoxMenuItem(JMenuItem parent, String text, boolean checked, ActionListener actionListener) {
-        return addCheckBoxMenuItem(parent, text, checked, actionListener, null);
     }
 
     private JCheckBoxMenuItem addCheckBoxMenuItem(JMenuItem parent, String text, boolean checked,

@@ -1,7 +1,6 @@
 package com.wirusmx.ole2editor.application.controller;
 
 import com.wirusmx.ole2editor.application.model.Model;
-import com.wirusmx.ole2editor.application.view.FileChooser;
 import com.wirusmx.ole2editor.application.view.gui.GuiView;
 import com.wirusmx.ole2editor.exceptions.IllegalFileStructure;
 import com.wirusmx.ole2editor.utils.LinkedOLE2Entry;
@@ -50,7 +49,7 @@ public class Controller {
 
         view.setTitle("[" + file.getName() + "]");
 
-        view.update();
+        view.reset();
     }
 
     public File getCurrentFile() {
@@ -69,5 +68,8 @@ public class Controller {
         return model.getStreamsTree();
     }
 
+    public LinkedOLE2Entry getWidowedStreamsTree() throws IOException, IllegalFileStructure {
+        return model.getWidowedStreamsList();
+    }
 
 }

@@ -19,8 +19,6 @@ public class FilesPanel extends MyPanel {
     private ResourceBundle panelResourceBundle = ResourceBundle.getBundle("lang.files_panel");
 
     private DefaultListModel<JListElementWrapper> filesListModel;
-    private JList<JListElementWrapper> filesList;
-    private JScrollPane filesListPane;
     private JLabel filesListLabel;
 
     private File current;
@@ -33,8 +31,8 @@ public class FilesPanel extends MyPanel {
         setLayout(new BorderLayout());
 
         filesListModel = new DefaultListModel<>();
-        filesList = new JList<>(filesListModel);
-        filesListPane = new JScrollPane(filesList);
+        JList<JListElementWrapper> filesList = new JList<>(filesListModel);
+        JScrollPane filesListPane = new JScrollPane(filesList);
         filesListLabel = new JLabel(" ");
 
         filesList.setCellRenderer(new DefaultListCellRenderer() {
@@ -45,8 +43,9 @@ public class FilesPanel extends MyPanel {
                     File file = ((FileListElement) value).getObject();
                     if (file.isDirectory()) {
                         label.setIcon(ImageLoader.load("folder.png"));
+                        label.setFont(new Font(label.getFont().getName(), Font.BOLD, label.getFont().getSize()));
                     } else {
-                        label.setIcon(ImageLoader.load("stream.png"));
+                        label.setIcon(ImageLoader.loadByExtension(file.getName(), false));
                     }
                 }
                 return label;
@@ -63,8 +62,14 @@ public class FilesPanel extends MyPanel {
         add(filesListPane, BorderLayout.CENTER);
     }
 
+    @Override
     public void update() {
         updateFilesList(current);
+    }
+
+    @Override
+    public void reset() {
+
     }
 
     public void updateFilesList(File file) {

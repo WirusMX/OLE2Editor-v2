@@ -11,18 +11,16 @@ public class ViewMenuListener implements MenuListener {
 
     JCheckBoxMenuItem sectorsPanel;
     JCheckBoxMenuItem streamsPanel;
-    JCheckBoxMenuItem systemInformationPanel;
     JCheckBoxMenuItem hexPanel;
     JCheckBoxMenuItem osfsPanel;
     JCheckBoxMenuItem streamPropertiesPanel;
 
     public ViewMenuListener(GuiView view, JCheckBoxMenuItem sectorsPanel, JCheckBoxMenuItem streamsPanel,
-                            JCheckBoxMenuItem systemInformationPanel, JCheckBoxMenuItem hexPanel,
+                            JCheckBoxMenuItem hexPanel,
                             JCheckBoxMenuItem osfsPanel, JCheckBoxMenuItem streamPropertiesPanel) {
         this.view = view;
         this.sectorsPanel = sectorsPanel;
         this.streamsPanel = streamsPanel;
-        this.systemInformationPanel = systemInformationPanel;
         this.hexPanel = hexPanel;
         this.osfsPanel = osfsPanel;
         this.streamPropertiesPanel = streamPropertiesPanel;
@@ -34,7 +32,6 @@ public class ViewMenuListener implements MenuListener {
 
         sectorsPanel.setSelected((code & 1) == 1);
         streamsPanel.setSelected((code & 2) == 2);
-        systemInformationPanel.setSelected((code & 4) == 4);
         hexPanel.setSelected((code & 8) == 8);
         osfsPanel.setSelected((code & 16) == 16);
         streamPropertiesPanel.setSelected((code & 32) == 32);

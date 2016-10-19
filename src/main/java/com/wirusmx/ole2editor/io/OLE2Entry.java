@@ -3,6 +3,7 @@ package com.wirusmx.ole2editor.io;
 import com.wirusmx.ole2editor.utils.Converter;
 
 import java.nio.ByteOrder;
+import java.util.Arrays;
 import java.util.Date;
 
 import static com.wirusmx.ole2editor.Constants.ENTRY_HEADER_SIZE;
@@ -45,19 +46,19 @@ public class OLE2Entry {
 
         System.arraycopy(rawData, offset, name, 0, 64);
         nameLength = Converter.bytesToInt16(byteOrder, rawData[offset + 64], rawData[offset + 65]);
-        if (nameLength < 0 || nameLength > 64){
+        if (nameLength < 0 || nameLength > 64) {
             throw new IllegalArgumentException("Entry name length must be more then or equals 0 and less then 65");
         }
 
         byte nodeTypeByte = rawData[offset + 66];
-        if (nodeTypeByte < 0 || nodeTypeByte >= EntryType.values().length){
+        if (nodeTypeByte < 0 || nodeTypeByte >= EntryType.values().length) {
             throw new IllegalArgumentException("Entry type byte must be more then or equals 0 and less then "
                     + EntryType.values().length);
         }
         type = EntryType.values()[nodeTypeByte];
 
         byte colorByte = rawData[offset + 67];
-        if (colorByte < 0 || colorByte >= EntryColor.values().length){
+        if (colorByte < 0 || colorByte >= EntryColor.values().length) {
             throw new IllegalArgumentException("Entry color byte must be more then or equals 0 and less then "
                     + EntryColor.values().length);
         }
@@ -143,12 +144,12 @@ public class OLE2Entry {
                      final byte[] endBytes,
                      final ByteOrder byteOrder) {
 
-        if (name == null){
+        if (name == null) {
             throw new IllegalArgumentException("Bytes array of the entry name must be not null");
         }
 
-        if (name.length > 64) {
-            throw new IllegalArgumentException("Bytes array of the entry name must contains not more 64 elements");
+        if (name.length != 64) {
+            throw new IllegalArgumentException("Bytes array of the entry name must contains 64 elements");
         }
 
         if (nameLength < 0 || nameLength > 64) {
@@ -185,6 +186,14 @@ public class OLE2Entry {
     public String getNameAsString() {
         if (nameLength == 0) {
             return "";
+        }
+
+        short prefixValue = Converter.bytesToInt16(byteOrder, name[0], name[1]);
+        if (prefixValue < 10) {
+            String prefix = "[0" + Integer.toHexString(prefixValue) + "]";
+            byte[] buffer = new byte[name.length - 2];
+            System.arraycopy(name, 2, buffer, 0, buffer.length);
+            return prefix + Converter.utf16BytesToString(byteOrder, buffer);
         }
 
         return Converter.utf16BytesToString(byteOrder, name);
@@ -294,13 +303,7 @@ public class OLE2Entry {
 
     @Override
     public String toString() {
-        switch (type) {
-            case USER_STORAGE:
-            case ROOT_STORAGE:
-                return "[" + getNameAsString() + "]";
-            default:
-                return getNameAsString();
-        }
+        return getNameAsString();
     }
 
     /**

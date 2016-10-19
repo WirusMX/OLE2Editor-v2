@@ -15,6 +15,32 @@ public class LinkedOLE2Entry extends OLE2Entry {
     private LinkedOLE2Entry prev = null;
     private LinkedOLE2Entry next = null;
 
+    /**
+     * Construct a new ROOT STORAGE
+     *
+     * @param name  - name of root storage
+     * @param order -byte order
+     */
+    public LinkedOLE2Entry(String name, ByteOrder order) {
+        super(Converter.stringToUtf16Bytes(name, order),
+                name.length() * 2 + 2,
+                EntryType.ROOT_STORAGE,
+                EntryColor.BLACK,
+                -1,
+                -1,
+                -1,
+                new byte[16],
+                new byte[4],
+                new Date(),
+                new Date(),
+                -1,
+                0,
+                new byte[4],
+                order);
+
+        this.fid = 0;
+    }
+
     private LinkedOLE2Entry(final OLE2Entry entry, final int fid) {
         super(entry.getName(),
                 entry.getNameLength(),
@@ -33,6 +59,19 @@ public class LinkedOLE2Entry extends OLE2Entry {
                 entry.getByteOrder());
 
         this.fid = fid;
+    }
+
+    @Override
+    public String toString() {
+        if (getType().equals(EntryType.EMPTY)) {
+            if (isUnlincked()) {
+                return "{EMPTY STREAM #" + fid + "}";
+            }
+
+            return "{REMOVED STREAM #" + fid + "}";
+        }
+
+        return super.toString();
     }
 
     public int getFid() {
@@ -87,6 +126,10 @@ public class LinkedOLE2Entry extends OLE2Entry {
         return next;
     }
 
+    public boolean isUnlincked(){
+        return parent == null && child == null && left == null && right == null;
+    }
+
     /**
      * Inserts new entry into current storage with preserving red-black tree properties.
      *
@@ -98,7 +141,7 @@ public class LinkedOLE2Entry extends OLE2Entry {
      * @return file ID of the new entry.
      */
     @Deprecated
-    public int addChild(final String name,
+    public int add(final String name,
                         final EntryType type,
                         final int firstStreamSectorID,
                         final int size,
@@ -272,11 +315,6 @@ public class LinkedOLE2Entry extends OLE2Entry {
         }
 
         for (int i = 0; i < linkedOLE2Entries.length; i++) {
-            if (entries.get(i).getType().equals(EntryType.EMPTY)) {
-                linked[i] = true;
-                continue;
-            }
-
             if (i > 0) {
                 linkedOLE2Entries[i].prev = linkedOLE2Entries[i - 1];
             }
@@ -301,6 +339,10 @@ public class LinkedOLE2Entry extends OLE2Entry {
             if (id >= 0 && id < entries.size()) {
                 linkedOLE2Entries[i].child = linkedOLE2Entries[id];
                 linked[id] = true;
+            }
+
+            if (entries.get(i).getType().equals(EntryType.EMPTY)) {
+                linked[i] = true;
             }
         }
 

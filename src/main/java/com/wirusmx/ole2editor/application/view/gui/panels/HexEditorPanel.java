@@ -10,11 +10,18 @@ public class HexEditorPanel extends MyPanel {
         super(view);
     }
 
+    @Override
     public void init(){
         setLayout(new BorderLayout());
         add(new JLabel("HexEditorPanel"), BorderLayout.CENTER);
     }
 
+    @Override
     public void update(){
+    }
+
+    @Override
+    public void reset() {
+
     }
 }
