@@ -11,7 +11,9 @@ import com.wirusmx.ole2editor.application.view.gui.panels.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.util.ResourceBundle;
 
 public class GuiView extends JFrame {
@@ -115,7 +117,7 @@ public class GuiView extends JFrame {
         }
 
         initMainMenuBar();
-
+        addActionButtons();
         add(splitPane, BorderLayout.CENTER);
         splitPane.setLeftComponent(new StreamsPanel(this));
         splitPane.setRightComponent(new FilesPanel(this));
@@ -124,6 +126,18 @@ public class GuiView extends JFrame {
 
         setVisible(true);
         setExtendedState(MAXIMIZED_BOTH);
+    }
+
+    private void addActionButtons() {
+        Panel panel = new Panel(new GridLayout(1, 7));
+        panel.add(new JButton("F3  " + uiResourceBundle.getString("menu_actions_view")));
+        panel.add(new JButton("F4  " + uiResourceBundle.getString("menu_actions_stream")));
+        panel.add(new JButton("F5  " + uiResourceBundle.getString("menu_actions_copy")));
+        panel.add(new JButton("F6  " + uiResourceBundle.getString("menu_actions_move")));
+        panel.add(new JButton("F7  " + uiResourceBundle.getString("menu_actions_storage")));
+        panel.add(new JButton("F8  " + uiResourceBundle.getString("menu_actions_remove")));
+        panel.add(new JButton("Alt+X  " + uiResourceBundle.getString("menu_file_exit")));
+        add(panel, BorderLayout.SOUTH);
     }
 
     public void update() {

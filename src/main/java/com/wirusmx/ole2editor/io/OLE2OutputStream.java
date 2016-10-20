@@ -1,7 +1,6 @@
 package com.wirusmx.ole2editor.io;
 
 import java.io.*;
-import java.nio.file.Files;
 
 import static com.wirusmx.ole2editor.Constants.*;
 

@@ -214,7 +214,22 @@ public class LinkedOLE2Entry extends OLE2Entry {
      * @return resulted <code>{@link OLE2Entry}</code>.
      */
     public OLE2Entry toOLE2Entry() {
-        return this;
+        return new OLE2Entry(getName(),
+                getNameLength(),
+                getType(),
+                getNodeColor(),
+                getLeftChildID(),
+                getRightChildID(),
+                getRootNodeID(),
+                getUniqueID(),
+                getUserFlags(),
+                getCreationTimeStamp(),
+                getModificationTimeStamp(),
+                getFirstStreamSectorID(),
+                getSize(),
+                getEndBytes(),
+                getByteOrder()
+        );
     }
 
     public String getAbsolutePath() {

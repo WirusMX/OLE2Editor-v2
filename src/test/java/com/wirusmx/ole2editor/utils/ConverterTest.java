@@ -166,6 +166,19 @@ public class ConverterTest extends Assert {
         assertEquals("Empty array", "", Converter.utf16BytesToString(ByteOrder.LITTLE_ENDIAN, new byte[0]));
         assertEquals("Null reference", "", Converter.utf16BytesToString(ByteOrder.LITTLE_ENDIAN, null));
 
+        String testString5 = "[05]Data";
+        byte[] testBytes5 = new byte[]{5, 0, 68, 0, 97, 0, 116, 0, 97, 0, 0, 0, 0, 0};
+        ByteBuffer buffer5 = ByteBuffer.wrap(testBytes5);
+        buffer3.order(ByteOrder.LITTLE_ENDIAN);
+        assertEquals("String which ends with \\0", testString5,
+                Converter.utf16BytesToString(ByteOrder.LITTLE_ENDIAN, buffer5.array()));
+
+        String testString6 = "[19]Data";
+        byte[] testBytes6 = new byte[]{25, 0, 68, 0, 97, 0, 116, 0, 97, 0, 0, 0, 0, 0};
+        ByteBuffer buffer6 = ByteBuffer.wrap(testBytes6);
+        buffer3.order(ByteOrder.LITTLE_ENDIAN);
+        assertEquals("String which ends with \\0", testString6,
+                Converter.utf16BytesToString(ByteOrder.LITTLE_ENDIAN, buffer6.array()));
     }
 
     @Test(expected = IllegalArgumentException.class)

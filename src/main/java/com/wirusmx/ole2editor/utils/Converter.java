@@ -117,7 +117,11 @@ public class Converter {
         char ch;
         int processedBytesCount = 0;
         while (processedBytesCount < bytes.length && (ch = buffer.getChar()) != 0) {
-            result += ch;
+            if (ch < 32){
+                result += String.format("[%02X]", ch & 0xFF);
+            } else {
+                result += ch;
+            }
             processedBytesCount += 2;
         }
 

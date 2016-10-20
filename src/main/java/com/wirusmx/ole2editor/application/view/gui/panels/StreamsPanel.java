@@ -15,8 +15,6 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -106,7 +104,7 @@ public class StreamsPanel extends MyPanel {
     private void updateTree() {
         root.setUserObject(new FileListElement(view.getController().getCurrentFile()));
         updateTree(root, currentStorage);
-        treeModel.insertNodeInto(new DefaultMutableTreeNode(new SystemInformation("System information")), root,
+        treeModel.insertNodeInto(new DefaultMutableTreeNode(new SystemInformation("System information", -5)), root,
                 root.getChildCount());
     }
 
@@ -140,10 +138,10 @@ public class StreamsPanel extends MyPanel {
         streamsListLabel.setText("System information");
         streamsListModel.clear();
 
-        streamsListModel.addElement(new SystemInformation("HEADER"));
-        streamsListModel.addElement(new SystemInformation("MSAT"));
-        streamsListModel.addElement(new SystemInformation("SAT"));
-        streamsListModel.addElement(new SystemInformation("SSAT"));
+        streamsListModel.addElement(new SystemInformation("HEADER", -1));
+        streamsListModel.addElement(new SystemInformation("MSAT", -2));
+        streamsListModel.addElement(new SystemInformation("SAT", -3));
+        streamsListModel.addElement(new SystemInformation("SSAT", -4));
     }
 
     private void updateList(LinkedOLE2Entry storage) {
@@ -160,9 +158,15 @@ public class StreamsPanel extends MyPanel {
 
     private class SystemInformation {
         private final String type;
+        private final int sid;
 
-        public SystemInformation(String type) {
+        public SystemInformation(String type, int sid) {
             this.type = type;
+            this.sid = sid;
+        }
+
+        public int getSid() {
+            return sid;
         }
 
         @Override
@@ -262,19 +266,23 @@ public class StreamsPanel extends MyPanel {
 
             if (e.getSource() instanceof JList && e.getClickCount() == 2) {
                 JList list = (JList) e.getSource();
-                if (list.getSelectedValue() instanceof LinkedOLE2Entry) {
-                    LinkedOLE2Entry node = (LinkedOLE2Entry) list.getSelectedValue();
-                    if (node != null) {
+                Object selectedValue = list.getSelectedValue();
+
+                if (selectedValue instanceof JListParentElement){
+                    selectedValue = ((JListParentElement) selectedValue).getObject();
+                }
+
+                if (selectedValue instanceof LinkedOLE2Entry) {
+                    LinkedOLE2Entry node = (LinkedOLE2Entry) selectedValue;
                         if (node.isStorage()) {
                             updateList(node);
                         } else {
-                            // TODO double click on stream
+                            view.getController().setCurrentStream(node);
                         }
-                    }
                 }
 
-                if (list.getSelectedValue() instanceof SystemInformation) {
-                    // TODO double click on system information
+                if (selectedValue instanceof SystemInformation) {
+                   view.getController().setCurrentSector(((SystemInformation) selectedValue).getSid());
                 }
             }
         }

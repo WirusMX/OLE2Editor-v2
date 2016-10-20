@@ -68,8 +68,30 @@ public class Controller {
         return model.getStreamsTree();
     }
 
+    public LinkedOLE2Entry getCurrentStream() {
+        return model.getCurrentStream();
+    }
+
+    public void setCurrentStream(LinkedOLE2Entry currentStream) {
+        model.setCurrentStream(currentStream);
+        view.update();
+    }
+
+    public int getCurrentSector() {
+        return model.getCurrentSector();
+    }
+
+    public void setCurrentSector(int currentSector) {
+        model.setCurrentSector(currentSector);
+        view.update();
+    }
+
+    @Deprecated
     public LinkedOLE2Entry getWidowedStreamsTree() throws IOException, IllegalFileStructure {
         return model.getWidowedStreamsList();
     }
 
+    public byte[] getStreamBytes(LinkedOLE2Entry currentStream, int from, int to) throws IOException, IllegalFileStructure {
+        return model.getStreamBytes(currentStream, from, to);
+    }
 }

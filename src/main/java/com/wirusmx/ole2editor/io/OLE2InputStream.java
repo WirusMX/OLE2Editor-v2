@@ -10,7 +10,8 @@ import java.util.List;
 
 import static com.wirusmx.ole2editor.Constants.ENTRY_HEADER_SIZE;
 import static com.wirusmx.ole2editor.Constants.FILE_HEADER_SIZE;
-import static com.wirusmx.ole2editor.utils.Converter.*;
+import static com.wirusmx.ole2editor.utils.Converter.bytesToInt16;
+import static com.wirusmx.ole2editor.utils.Converter.bytesToInt32;
 
 /**
  * Class provides methods for ole2 files reading

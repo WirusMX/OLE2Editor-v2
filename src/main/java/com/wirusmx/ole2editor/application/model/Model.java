@@ -34,6 +34,27 @@ public class Model {
 
     public void setCurrentFile(File currentFile) {
         this.currentFile = currentFile;
+        modified = false;
+        currentStream = null;
+        currentSector = -5;
+    }
+
+    public LinkedOLE2Entry getCurrentStream() {
+        return currentStream;
+    }
+
+    public void setCurrentStream(LinkedOLE2Entry currentStream) {
+        this.currentStream = currentStream;
+        currentSector = -5;
+    }
+
+    public int getCurrentSector() {
+        return currentSector;
+    }
+
+    public void setCurrentSector(int currentSector) {
+        this.currentSector = currentSector;
+        currentStream = null;
     }
 
     public LinkedOLE2Entry getStreamsTree() throws IOException, IllegalFileStructure {
@@ -42,6 +63,7 @@ public class Model {
         return LinkedOLE2Entry.buildByEntriesList(entries);
     }
 
+    @Deprecated
     public LinkedOLE2Entry getWidowedStreamsList() throws IOException, IllegalFileStructure {
         List<OLE2Entry> entries = getOle2EntriesList();
         LinkedOLE2Entry linkedEntries = LinkedOLE2Entry.buildByEntriesList(entries);
@@ -58,5 +80,31 @@ public class Model {
             }
         }
         return entries;
+    }
+
+    public byte[] getStreamBytes(LinkedOLE2Entry currentStream, int from, int to) throws IOException, IllegalFileStructure {
+        byte[] buffer = new byte[to - from];
+        try (OLE2InputStream is = new OLE2InputStream(currentFile.getAbsolutePath())){
+            boolean isEntryFound = false;
+            while (is.hasNextEntry()){
+                if (currentStream.toOLE2Entry().equals(is.readNextEntry())){
+                    isEntryFound = true;
+                    break;
+                }
+            }
+
+            if (isEntryFound){
+                int i = 0;
+                while (i < from){
+                    is.read();
+                    i++;
+                }
+
+                is.read(buffer);
+            }
+
+        }
+
+        return buffer;
     }
 }

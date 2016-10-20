@@ -2,6 +2,9 @@ package com.wirusmx.ole2editor.application.view.gui;
 
 import javax.swing.*;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Properties;
 
 public class ImageLoader {
     private static final String IMAGES_PATH = "img/";
@@ -21,22 +24,17 @@ public class ImageLoader {
         String extension = "";
         int pos = fileName.lastIndexOf(".");
         if (pos > 0 && pos + 1 < fileName.length()) {
-            extension = fileName.substring(pos + 1);
+            extension = fileName.substring(pos + 1).toLowerCase();
         }
 
-        switch (extension) {
-            case "doc":
-                return load(PROGRAMS_ICONS_PATH + "msword.png");
-
-            case "db":
-                return load(PROGRAMS_ICONS_PATH + "db.png");
-
-            case "xls":
-                return load(PROGRAMS_ICONS_PATH + "msexcel.png");
-
-            case "ppt":
-                return load(PROGRAMS_ICONS_PATH + "mspowp.png");
-
+        String propPath = IMAGES_PATH + "/" + PROGRAMS_ICONS_PATH + "/" + "ext.properties";
+        Properties properties = new Properties();
+        try (FileReader fileReader = new FileReader(propPath)) {
+            properties.load(fileReader);
+            if (properties.containsKey(extension)){
+                return load(PROGRAMS_ICONS_PATH + properties.getProperty(extension));
+            }
+        } catch (IOException ignored) {
         }
 
         if (useDefaultOle2Ico) {

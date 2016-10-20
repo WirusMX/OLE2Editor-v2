@@ -2,6 +2,7 @@ package com.wirusmx.ole2editor.io;
 
 import com.wirusmx.ole2editor.utils.Converter;
 
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Date;
@@ -188,14 +189,6 @@ public class OLE2Entry {
             return "";
         }
 
-        short prefixValue = Converter.bytesToInt16(byteOrder, name[0], name[1]);
-        if (prefixValue < 10) {
-            String prefix = "[0" + Integer.toHexString(prefixValue) + "]";
-            byte[] buffer = new byte[name.length - 2];
-            System.arraycopy(name, 2, buffer, 0, buffer.length);
-            return prefix + Converter.utf16BytesToString(byteOrder, buffer);
-        }
-
         return Converter.utf16BytesToString(byteOrder, name);
     }
 
@@ -301,9 +294,77 @@ public class OLE2Entry {
         return endBytes;
     }
 
+    public byte[] getRawData(){
+        ByteBuffer buffer = ByteBuffer.allocate(128);
+        buffer.order(byteOrder);
+        buffer.put(name);
+        buffer.putShort((short) nameLength);
+        buffer.put((byte) type.ordinal());
+        buffer.put((byte) nodeColor.ordinal());
+        buffer.putInt(leftChildID);
+        buffer.putInt(rightChildID);
+        buffer.putInt(rootNodeID);
+        buffer.put(uniqueID);
+        buffer.put(userFlags);
+        buffer.putLong(creationTimeStamp.getTime());
+        buffer.putLong(modificationTimeStamp.getTime());
+        buffer.putInt(firstStreamSectorID);
+        buffer.putInt(size);
+        buffer.put(endBytes);
+
+        return buffer.array();
+    }
+
     @Override
     public String toString() {
         return getNameAsString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        OLE2Entry ole2Entry = (OLE2Entry) o;
+
+        if (nameLength != ole2Entry.nameLength) return false;
+        if (leftChildID != ole2Entry.leftChildID) return false;
+        if (rightChildID != ole2Entry.rightChildID) return false;
+        if (rootNodeID != ole2Entry.rootNodeID) return false;
+        if (firstStreamSectorID != ole2Entry.firstStreamSectorID) return false;
+        if (size != ole2Entry.size) return false;
+        if (!Arrays.equals(name, ole2Entry.name)) return false;
+        if (type != ole2Entry.type) return false;
+        if (nodeColor != ole2Entry.nodeColor) return false;
+        if (!Arrays.equals(uniqueID, ole2Entry.uniqueID)) return false;
+        if (!Arrays.equals(userFlags, ole2Entry.userFlags)) return false;
+        if (creationTimeStamp != null ? !creationTimeStamp.equals(ole2Entry.creationTimeStamp) : ole2Entry.creationTimeStamp != null)
+            return false;
+        if (modificationTimeStamp != null ? !modificationTimeStamp.equals(ole2Entry.modificationTimeStamp) : ole2Entry.modificationTimeStamp != null)
+            return false;
+        if (!Arrays.equals(endBytes, ole2Entry.endBytes)) return false;
+        return byteOrder != null ? byteOrder.equals(ole2Entry.byteOrder) : ole2Entry.byteOrder == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Arrays.hashCode(name);
+        result = 31 * result + nameLength;
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (nodeColor != null ? nodeColor.hashCode() : 0);
+        result = 31 * result + leftChildID;
+        result = 31 * result + rightChildID;
+        result = 31 * result + rootNodeID;
+        result = 31 * result + Arrays.hashCode(uniqueID);
+        result = 31 * result + Arrays.hashCode(userFlags);
+        result = 31 * result + (creationTimeStamp != null ? creationTimeStamp.hashCode() : 0);
+        result = 31 * result + (modificationTimeStamp != null ? modificationTimeStamp.hashCode() : 0);
+        result = 31 * result + firstStreamSectorID;
+        result = 31 * result + size;
+        result = 31 * result + Arrays.hashCode(endBytes);
+        result = 31 * result + (byteOrder != null ? byteOrder.hashCode() : 0);
+        return result;
     }
 
     /**
