@@ -36,19 +36,8 @@ public class PropertiesPanel extends MyPanel {
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
-
-            @Override
-            public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
-                Component component = super.prepareRenderer(renderer, row, column);
-                int rendererWidth = component.getPreferredSize().width;
-                TableColumn tableColumn = getColumnModel().getColumn(column);
-                tableColumn.setPreferredWidth(Math.max(rendererWidth + getIntercellSpacing().width,
-                        tableColumn.getPreferredWidth()));
-                return component;
-            }
         };
 
-        //table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         scrollPane = new JScrollPane(table);
 
         Panel panel = new Panel(new BorderLayout());

@@ -8,6 +8,7 @@ import com.wirusmx.ole2editor.utils.LinkedOLE2Entry;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 public class Controller {
     private Model model;
@@ -86,8 +87,8 @@ public class Controller {
         view.update();
     }
 
-    @Deprecated
-    public LinkedOLE2Entry getWidowedStreamsTree() throws IOException, IllegalFileStructure {
+
+    public List<LinkedOLE2Entry> getWidowedStreamsList() throws IOException, IllegalFileStructure {
         return model.getWidowedStreamsList();
     }
 

@@ -6,6 +6,7 @@ import com.wirusmx.ole2editor.application.view.gui.ImageLoader;
 import com.wirusmx.ole2editor.application.view.gui.listeners.PanelListener;
 import com.wirusmx.ole2editor.application.view.gui.wrappers.FileListElement;
 import com.wirusmx.ole2editor.application.view.gui.wrappers.JListParentElement;
+import com.wirusmx.ole2editor.exceptions.IllegalFileStructure;
 import com.wirusmx.ole2editor.io.OLE2Entry;
 import com.wirusmx.ole2editor.utils.LinkedOLE2Entry;
 
@@ -18,6 +19,8 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 public class StreamsPanel extends MyPanel {
 
@@ -101,11 +104,19 @@ public class StreamsPanel extends MyPanel {
         update();
     }
 
-    private void updateTree() {
+    private void updateTree() throws IOException, IllegalFileStructure {
         root.setUserObject(new FileListElement(view.getController().getCurrentFile()));
         updateTree(root, currentStorage);
+        addWidowedStreams(view.getController().getWidowedStreamsList());
         treeModel.insertNodeInto(new DefaultMutableTreeNode(new SystemInformation("System information", -5)), root,
                 root.getChildCount());
+    }
+
+    private void addWidowedStreams(List<LinkedOLE2Entry> widowedStreamsList) {
+        if (widowedStreamsList.size() > 0) {
+            treeModel.insertNodeInto(new DefaultMutableTreeNode(new WidowedStreams(widowedStreamsList)), root,
+                    root.getChildCount());
+        }
     }
 
     private void updateTree(DefaultMutableTreeNode parent, LinkedOLE2Entry newNode) {
@@ -156,6 +167,32 @@ public class StreamsPanel extends MyPanel {
         }
     }
 
+    private void updateList(List<LinkedOLE2Entry> streams) {
+        streamsListLabel.setText("Widowed streams");
+        streamsListModel.clear();
+
+        for (LinkedOLE2Entry e : streams) {
+            streamsListModel.addElement(e);
+        }
+    }
+
+    private class WidowedStreams {
+        private List<LinkedOLE2Entry> streams;
+
+        public WidowedStreams(List<LinkedOLE2Entry> streams) {
+            this.streams = streams;
+        }
+
+        public List<LinkedOLE2Entry> getStreams() {
+            return streams;
+        }
+
+        @Override
+        public String toString() {
+            return "Widowed streams";
+        }
+    }
+
     private class SystemInformation {
         private final String type;
         private final int sid;
@@ -180,6 +217,15 @@ public class StreamsPanel extends MyPanel {
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
             JLabel label = (JLabel) super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
             Object nodeObject = ((DefaultMutableTreeNode) value).getUserObject();
+
+            if (nodeObject instanceof FileListElement) {
+                File file = ((FileListElement) nodeObject).getObject();
+                ImageIcon icon = ImageLoader.loadByExtension(file.getName(), true);
+                if (icon != null) {
+                    label.setIcon(icon);
+                }
+            }
+
             if (nodeObject instanceof LinkedOLE2Entry) {
                 ImageIcon icon = ImageLoader.load("folder.png");
                 if (icon != null) {
@@ -187,16 +233,15 @@ public class StreamsPanel extends MyPanel {
                 }
             }
 
-            if (nodeObject instanceof SystemInformation) {
-                ImageIcon icon = ImageLoader.load("system.png");
+            if (nodeObject instanceof WidowedStreams) {
+                ImageIcon icon = ImageLoader.load("widow_streams_folder.png");
                 if (icon != null) {
                     label.setIcon(icon);
                 }
             }
 
-            if (nodeObject instanceof FileListElement) {
-                File file = ((FileListElement) nodeObject).getObject();
-                ImageIcon icon = ImageLoader.loadByExtension(file.getName(), true);
+            if (nodeObject instanceof SystemInformation) {
+                ImageIcon icon = ImageLoader.load("system.png");
                 if (icon != null) {
                     label.setIcon(icon);
                 }
@@ -249,14 +294,20 @@ public class StreamsPanel extends MyPanel {
                 JTree jTree = (JTree) e.getSource();
                 DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) jTree.getLastSelectedPathComponent();
                 if (lastSelectedPathComponent != null) {
-                    if (lastSelectedPathComponent.getUserObject() instanceof LinkedOLE2Entry) {
-                        LinkedOLE2Entry node = (LinkedOLE2Entry) lastSelectedPathComponent.getUserObject();
+                    Object userObject = lastSelectedPathComponent.getUserObject();
+                    if (userObject instanceof LinkedOLE2Entry) {
+                        LinkedOLE2Entry node = (LinkedOLE2Entry) userObject;
                         if (node != null) {
                             updateList(node);
                         }
                     }
 
-                    if (lastSelectedPathComponent.getUserObject() instanceof SystemInformation) {
+                    if (userObject instanceof WidowedStreams) {
+                        List<LinkedOLE2Entry> streams = ((WidowedStreams) userObject).getStreams();
+                        updateList(streams);
+                    }
+
+                    if (userObject instanceof SystemInformation) {
                         updateList();
                     }
                 }
@@ -268,21 +319,21 @@ public class StreamsPanel extends MyPanel {
                 JList list = (JList) e.getSource();
                 Object selectedValue = list.getSelectedValue();
 
-                if (selectedValue instanceof JListParentElement){
+                if (selectedValue instanceof JListParentElement) {
                     selectedValue = ((JListParentElement) selectedValue).getObject();
                 }
 
                 if (selectedValue instanceof LinkedOLE2Entry) {
                     LinkedOLE2Entry node = (LinkedOLE2Entry) selectedValue;
-                        if (node.isStorage()) {
-                            updateList(node);
-                        } else {
-                            view.getController().setCurrentStream(node);
-                        }
+                    if (node.isStorage()) {
+                        updateList(node);
+                    } else {
+                        view.getController().setCurrentStream(node);
+                    }
                 }
 
                 if (selectedValue instanceof SystemInformation) {
-                   view.getController().setCurrentSector(((SystemInformation) selectedValue).getSid());
+                    view.getController().setCurrentSector(((SystemInformation) selectedValue).getSid());
                 }
             }
         }
@@ -307,4 +358,6 @@ public class StreamsPanel extends MyPanel {
 
         }
     }
+
+
 }

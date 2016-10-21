@@ -63,12 +63,20 @@ public class Model {
         return LinkedOLE2Entry.buildByEntriesList(entries);
     }
 
-    @Deprecated
-    public LinkedOLE2Entry getWidowedStreamsList() throws IOException, IllegalFileStructure {
+    public List<LinkedOLE2Entry> getWidowedStreamsList() throws IOException, IllegalFileStructure {
         List<OLE2Entry> entries = getOle2EntriesList();
-        LinkedOLE2Entry linkedEntries = LinkedOLE2Entry.buildByEntriesList(entries);
+        LinkedOLE2Entry linkedEntry = LinkedOLE2Entry.buildByEntriesList(entries);
+        List<LinkedOLE2Entry> unlinkedEntries = new ArrayList<>();
 
-        return null;
+        while (linkedEntry != null){
+            if (linkedEntry.isUnlincked()){
+                unlinkedEntries.add(linkedEntry);
+            }
+
+            linkedEntry = linkedEntry.getNext();
+        }
+
+        return unlinkedEntries;
     }
 
     private List<OLE2Entry> getOle2EntriesList() throws IOException, IllegalFileStructure {
