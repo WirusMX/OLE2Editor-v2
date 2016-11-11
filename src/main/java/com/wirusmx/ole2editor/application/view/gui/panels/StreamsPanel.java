@@ -72,7 +72,6 @@ public class StreamsPanel extends MyPanel {
 
         splitPane.setDividerSize(4);
         add(splitPane, BorderLayout.CENTER);
-
     }
 
     public void update() {
