@@ -7,24 +7,23 @@ import com.wirusmx.ole2editor.utils.LinkedOLE2Entry;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.io.IOException;
+import java.util.ResourceBundle;
 
 public class PropertiesPanel extends MyPanel {
     private DefaultTableModel tableModel;
     private JTable table;
     private JScrollPane scrollPane ;
     private JLabel label;
+    private ResourceBundle uiResourceBundle = ResourceBundle.getBundle("lang.ui");
+
 
     public PropertiesPanel(GuiView view) {
         super(view);
     }
 
-
-
-    @Override
+   @Override
     public void init() {
         setLayout(new BorderLayout());
 
@@ -44,7 +43,11 @@ public class PropertiesPanel extends MyPanel {
         panel.add(label, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        tableModel.setColumnIdentifiers(new String[]{"Offset", "Hex", "ASCII", "Description"});
+        tableModel.setColumnIdentifiers(
+                new String[]{
+                    uiResourceBundle.getString("properties_panel_header_offset"),
+                        uiResourceBundle.getString("properties_panel_header_value"),
+                        uiResourceBundle.getString("properties_panel_header_description")});
         add(panel, BorderLayout.CENTER);
     }
 
@@ -99,7 +102,7 @@ public class PropertiesPanel extends MyPanel {
         label.setText(currentStream.getAbsolutePath() + ":");
         byte[] bytes = currentStream.getRawData();
         for (int i = 0; i < bytes.length; i++){
-            tableModel.addRow(new String[]{String.format("%05d", i),
+            tableModel.addRow(new String[]{String.format("%05X", i),
                     String.format("%02X", bytes[i] & 0xFF),
                     "" + (char) bytes[i],
                     ""});

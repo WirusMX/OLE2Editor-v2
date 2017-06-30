@@ -8,9 +8,11 @@ import javax.swing.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.ResourceBundle;
 
 public class DefaultExceptionsHandler {
     private static Logger logger = Logger.getLogger(DefaultExceptionsHandler.class);
+    private static ResourceBundle uiResourceBundle = ResourceBundle.getBundle("lang.ui");
 
     private static boolean isLoggerReady = false;
 
@@ -31,8 +33,10 @@ public class DefaultExceptionsHandler {
         }
 
         if (parent != null) {
-            JOptionPane.showMessageDialog(parent, ex.getLocalizedMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(parent,
+                    uiResourceBundle.getString("dialog_error_text") + " " + ex.getLocalizedMessage(),
+                    uiResourceBundle.getString("dialog_error_header"),
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }

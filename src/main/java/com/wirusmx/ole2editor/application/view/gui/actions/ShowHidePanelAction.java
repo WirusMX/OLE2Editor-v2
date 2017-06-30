@@ -15,14 +15,19 @@ public class ShowHidePanelAction implements ActionListener{
         this.view = view;
     }
 
-
     @Override
     public void actionPerformed(ActionEvent e) {
-        JCheckBoxMenuItem menuItem = (JCheckBoxMenuItem) e.getSource();
-        if (menuItem.isSelected()){
+        if (e.getSource() instanceof JCheckBoxMenuItem) {
+            JCheckBoxMenuItem menuItem = (JCheckBoxMenuItem) e.getSource();
+            if (menuItem.isSelected()) {
+                view.showPanel(panelClass);
+            } else {
+                view.hidePanel(panelClass);
+            }
+        }
+
+        if (e.getSource() instanceof JButton || e.getSource() instanceof JMenuItem) {
             view.showPanel(panelClass);
-        } else {
-            view.hidePanel(panelClass);
         }
     }
 }

@@ -16,7 +16,7 @@ import java.util.Comparator;
 import java.util.ResourceBundle;
 
 public class FilesPanel extends MyPanel {
-    private ResourceBundle panelResourceBundle = ResourceBundle.getBundle("lang.files_panel");
+    private ResourceBundle uiResourceBundle = ResourceBundle.getBundle("lang.ui");
 
     private DefaultListModel<JListElementWrapper> filesListModel;
     private JLabel filesListLabel;
@@ -144,15 +144,15 @@ public class FilesPanel extends MyPanel {
                 filesListLabel.setText(file.getAbsolutePath());
             } else {
                 int dialogResult = JOptionPane.showOptionDialog(view,
-                        String.format(panelResourceBundle.getString("files_panel_open_question"), file.getName()),
-                        "",
+                        String.format(uiResourceBundle.getString("dialog_open_question_text"), file.getName()),
+                        uiResourceBundle.getString("dialog_question_header"),
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE,
                         null,
-                        new Object[]{panelResourceBundle.getString("files_panel_no"), panelResourceBundle.getString("files_panel_yes")},
-                        panelResourceBundle.getString("files_panel_yes"));
+                        new Object[]{uiResourceBundle.getString("dialog_yes"), uiResourceBundle.getString("dialog_no")},
+                        uiResourceBundle.getString("dialog_yes"));
 
-                if (dialogResult == 1) {
+                if (dialogResult == JOptionPane.YES_OPTION) {
                     view.getController().openFile(file);
                 }
             }

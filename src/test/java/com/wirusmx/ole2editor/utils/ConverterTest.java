@@ -208,9 +208,4 @@ public class ConverterTest extends Assert {
         assertEquals(0, Converter.stringToUtf16Bytes("", ByteOrder.LITTLE_ENDIAN).length);
 
     }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void stringToUtf16BytesExceptionTest() {
-        Converter.stringToUtf16Bytes("12345678901234567890123456789012", ByteOrder.LITTLE_ENDIAN);
-    }
 }

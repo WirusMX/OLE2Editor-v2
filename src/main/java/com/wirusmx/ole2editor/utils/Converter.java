@@ -137,7 +137,7 @@ public class Converter {
             return new byte[0];
         }
 
-        if (string.length() > 31) {
+        if (useDefaultBufferSize && string.length() > 31) {
             throw new IllegalArgumentException("String length can not be greater then 31");
         }
 

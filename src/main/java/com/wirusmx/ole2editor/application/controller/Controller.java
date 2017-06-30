@@ -78,6 +78,14 @@ public class Controller {
         view.update();
     }
 
+    public LinkedOLE2Entry getSelectedStream() {
+        return model.getSelectedStream();
+    }
+
+    public void setSelectedStream(LinkedOLE2Entry selectedStream) {
+        model.setSelectedStream(selectedStream);
+    }
+
     public int getCurrentSector() {
         return model.getCurrentSector();
     }
@@ -94,5 +102,9 @@ public class Controller {
 
     public byte[] getStreamBytes(LinkedOLE2Entry currentStream, int from, int to) throws IOException, IllegalFileStructure {
         return model.getStreamBytes(currentStream, from, to);
+    }
+
+    public byte[] getStreamBytes(LinkedOLE2Entry currentStream) throws IOException, IllegalFileStructure {
+        return model.getStreamBytes(currentStream, 0, currentStream.getSize());
     }
 }

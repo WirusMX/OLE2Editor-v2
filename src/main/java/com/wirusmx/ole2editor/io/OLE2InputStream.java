@@ -125,7 +125,7 @@ public class OLE2InputStream extends InputStream implements Closeable {
         }
     }
 
-    public boolean readAllStreamSectorsIgnoreSize() {
+    public boolean isReadAllStreamSectorsIgnoreSize() {
         return readAllStreamSectorsIgnoreSize;
     }
 

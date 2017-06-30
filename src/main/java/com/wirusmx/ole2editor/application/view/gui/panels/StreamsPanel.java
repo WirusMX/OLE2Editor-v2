@@ -262,7 +262,7 @@ public class StreamsPanel extends MyPanel {
                     label.setFont(new Font(label.getFont().getName(), Font.BOLD, label.getFont().getSize()));
 
                 } else {
-                    if (entry.getType().equals(OLE2Entry.EntryType.EMPTY) && !entry.isUnlincked()) {
+                    if (entry.getType().equals(OLE2Entry.EntryType.EMPTY) && !entry.isUnlinked()) {
                         label.setIcon(ImageLoader.load("removed_stream.png"));
                         label.setFont(new Font(label.getFont().getName(), Font.ITALIC, label.getFont().getSize()));
                     } else {
@@ -314,7 +314,7 @@ public class StreamsPanel extends MyPanel {
                 return;
             }
 
-            if (e.getSource() instanceof JList && e.getClickCount() == 2) {
+            if (e.getSource() instanceof JList) {
                 JList list = (JList) e.getSource();
                 Object selectedValue = list.getSelectedValue();
 
@@ -322,12 +322,17 @@ public class StreamsPanel extends MyPanel {
                     selectedValue = ((JListParentElement) selectedValue).getObject();
                 }
 
+                int clickCount = e.getClickCount();
+
                 if (selectedValue instanceof LinkedOLE2Entry) {
                     LinkedOLE2Entry node = (LinkedOLE2Entry) selectedValue;
-                    if (node.isStorage()) {
-                        updateList(node);
-                    } else {
-                        view.getController().setCurrentStream(node);
+                    view.getController().setSelectedStream(node);
+                    if (clickCount == 2) {
+                        if (node.isStorage()) {
+                            updateList(node);
+                        } else {
+                            view.getController().setCurrentStream(node);
+                        }
                     }
                 }
 

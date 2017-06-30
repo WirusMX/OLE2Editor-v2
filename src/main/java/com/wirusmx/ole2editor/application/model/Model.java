@@ -17,6 +17,7 @@ public class Model {
     private boolean modified = false;
     private File currentFile;
     private LinkedOLE2Entry currentStream;
+    private LinkedOLE2Entry selectedStream;
     private int currentSector;
 
 
@@ -37,6 +38,14 @@ public class Model {
         modified = false;
         currentStream = null;
         currentSector = -5;
+    }
+
+    public LinkedOLE2Entry getSelectedStream() {
+        return selectedStream;
+    }
+
+    public void setSelectedStream(LinkedOLE2Entry selectedStream) {
+        this.selectedStream = selectedStream;
     }
 
     public LinkedOLE2Entry getCurrentStream() {
@@ -68,8 +77,8 @@ public class Model {
         LinkedOLE2Entry linkedEntry = LinkedOLE2Entry.buildByEntriesList(entries);
         List<LinkedOLE2Entry> unlinkedEntries = new ArrayList<>();
 
-        while (linkedEntry != null){
-            if (linkedEntry.isUnlincked()){
+        while (linkedEntry != null) {
+            if (linkedEntry.isUnlinked()) {
                 unlinkedEntries.add(linkedEntry);
             }
 
@@ -90,29 +99,61 @@ public class Model {
         return entries;
     }
 
-    public byte[] getStreamBytes(LinkedOLE2Entry currentStream, int from, int to) throws IOException, IllegalFileStructure {
+    /**
+     * Read <code>(to - from)</code> bytes or less, if stream length < <code>to</code>,
+     * from OLE2 stream
+     *
+     * @param ole2Entry - OLE2 entry for reading stream bytes
+     * @param from      - first byte for reading position (included)
+     * @param to        - last byte for reading position (not included)
+     * @return array of bytes. Array length is:
+     * <code>(to - from)</code> if parameter <code>to</code> less or equals stream length
+     * <code>(ole2Entry.getSize() - from)</code> if parameter <code>to</code> more then stream length
+     * 0 otherwise
+     * @throws IOException              if some i/o problems occur
+     * @throws IllegalFileStructure     if file has illegal structure
+     * @throws IllegalArgumentException if method parameter unacceptable
+     */
+    public byte[] getStreamBytes(LinkedOLE2Entry ole2Entry, int from, int to) throws IOException, IllegalFileStructure {
+        if (from > to) {
+            throw new IllegalArgumentException("Parameter \"to\" must be greater then \"from\"");
+        }
+
+        if (from < 0) {
+            throw new IllegalArgumentException("Parameter \"from\" must be positive");
+        }
+
         byte[] buffer = new byte[to - from];
-        try (OLE2InputStream is = new OLE2InputStream(currentFile.getAbsolutePath())){
+        try (OLE2InputStream ole2InputStream = new OLE2InputStream(currentFile.getAbsolutePath())) {
             boolean isEntryFound = false;
-            while (is.hasNextEntry()){
-                if (currentStream.toOLE2Entry().equals(is.readNextEntry())){
+            while (ole2InputStream.hasNextEntry()) {
+                if (ole2Entry.toOLE2Entry().equals(ole2InputStream.readNextEntry())) {
                     isEntryFound = true;
                     break;
                 }
             }
 
-            if (isEntryFound){
+            if (isEntryFound) {
                 int i = 0;
-                while (i < from){
-                    is.read();
+                while (i < from) {
+                    ole2InputStream.read();
                     i++;
                 }
 
-                is.read(buffer);
+                int bytesCount = ole2InputStream.read(buffer);
+                if (bytesCount < buffer.length) {
+                    byte[] tempBuffer = new byte[bytesCount];
+                    System.arraycopy(buffer, 0, tempBuffer, 0, bytesCount);
+                    return tempBuffer;
+                }
+
+                return buffer;
             }
 
         }
 
-        return buffer;
+        return new byte[0];
     }
+
+
 }

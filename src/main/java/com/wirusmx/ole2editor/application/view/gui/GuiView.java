@@ -19,7 +19,7 @@ import java.util.ResourceBundle;
 public class GuiView extends JFrame {
     private ResourceBundle uiResourceBundle = ResourceBundle.getBundle("lang.ui");
 
-    private final String frameName = "OLE2 EDITOR";
+    private final String FRAME_NAME = "OLE2 EDITOR 2.0";
 
     private Controller controller;
 
@@ -35,7 +35,7 @@ public class GuiView extends JFrame {
 
     @Override
     public void setTitle(String title) {
-        super.setTitle(frameName + " " + title);
+        super.setTitle(FRAME_NAME + " " + title);
     }
 
     public int getVisiblePanelsCode() {
@@ -85,30 +85,42 @@ public class GuiView extends JFrame {
 
 
     public void showPanel(Class panelClass) {
+        MyPanel panel = null;
         if (panelClass == SectorsPanel.class) {
-            splitPane.setLeftComponent(new SectorsPanel(this));
+            panel = new SectorsPanel(this);
+            splitPane.setLeftComponent(panel);
         }
 
         if (panelClass == StreamsPanel.class) {
-            splitPane.setLeftComponent(new StreamsPanel(this));
+            panel = new StreamsPanel(this);
+            splitPane.setLeftComponent(panel);
         }
 
         if (panelClass == HexEditorPanel.class) {
-            splitPane.setRightComponent(new HexEditorPanel(this));
+            panel = new HexEditorPanel(this);
+            splitPane.setRightComponent(panel);
         }
 
         if (panelClass == FilesPanel.class) {
-            splitPane.setRightComponent(new FilesPanel(this));
+            panel = new FilesPanel(this);
+            splitPane.setRightComponent(panel);
         }
 
         if (panelClass == PropertiesPanel.class) {
-            splitPane.setRightComponent(new PropertiesPanel(this));
+            panel = new PropertiesPanel(this);
+            splitPane.setRightComponent(panel);
+        }
+
+        if (panel != null){
+            panel.init();
+            panel.update();
         }
     }
 
     public void init() {
-        super.setTitle(frameName);
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        super.setTitle(FRAME_NAME);
+        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new ExitAction(this));
         setSize(800, 600);
 
         try {
@@ -130,27 +142,31 @@ public class GuiView extends JFrame {
 
     private void addActionButtons() {
         Panel panel = new Panel(new GridLayout(1, 7));
-        panel.add(new JButton("F3  " + uiResourceBundle.getString("menu_actions_view")));
+        JButton actionsViewButton = new JButton("F3  " + uiResourceBundle.getString("menu_actions_view"));
+        actionsViewButton.addActionListener(new ShowHidePanelAction(this, HexEditorPanel.class));
+        panel.add(actionsViewButton);
         panel.add(new JButton("F4  " + uiResourceBundle.getString("menu_actions_stream")));
         panel.add(new JButton("F5  " + uiResourceBundle.getString("menu_actions_copy")));
         panel.add(new JButton("F6  " + uiResourceBundle.getString("menu_actions_move")));
         panel.add(new JButton("F7  " + uiResourceBundle.getString("menu_actions_storage")));
         panel.add(new JButton("F8  " + uiResourceBundle.getString("menu_actions_remove")));
-        panel.add(new JButton("Alt+X  " + uiResourceBundle.getString("menu_file_exit")));
+        JButton exitButton = new JButton("Alt+X  " + uiResourceBundle.getString("menu_file_exit"));
+        exitButton.addActionListener(new ExitAction(this));
+        panel.add(exitButton);
         add(panel, BorderLayout.SOUTH);
     }
 
     public void update() {
-        MyPanel left = (MyPanel) splitPane.getLeftComponent();
-        if (left != null){
-            left.update();
-        }
+        updatePanel((MyPanel) splitPane.getRightComponent());
+        updatePanel((MyPanel) splitPane.getLeftComponent());
+    }
 
-        MyPanel right = (MyPanel) splitPane.getRightComponent();
-        if (right != null){
-            right.update();
+    private void updatePanel(MyPanel panel) {
+        if (panel != null){
+            panel.update();
         }
     }
+
 
     public void reset(){
         splitPane.setDividerLocation(0.5);
@@ -170,6 +186,7 @@ public class GuiView extends JFrame {
         JMenuBar menuBar = new JMenuBar();
 
         initFileMenu(menuBar);
+        initActionsMenu(menuBar);
         initViewMenu(menuBar);
         initHelpMenu(menuBar);
 
@@ -187,6 +204,21 @@ public class GuiView extends JFrame {
         fileMenu.addMenuListener(new SaveMenuListener(this, menuSave, menuSaveAs));
         fileMenu.addSeparator();
         addMenuItem(fileMenu, uiResourceBundle.getString("menu_file_exit"), new ExitAction(this), KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.ALT_MASK));
+    }
+
+    private void initActionsMenu(JMenuBar menuBar){
+        JMenu actionsMenu = new JMenu(uiResourceBundle.getString("menu_actions"));
+        menuBar.add(actionsMenu);
+
+        addMenuItem(actionsMenu, uiResourceBundle.getString("menu_actions_view"),
+                new ShowHidePanelAction(this, HexEditorPanel.class),
+                KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0));
+        addMenuItem(actionsMenu, uiResourceBundle.getString("menu_actions_stream"), null, KeyStroke.getKeyStroke(KeyEvent.VK_F4, 0));
+        addMenuItem(actionsMenu, uiResourceBundle.getString("menu_actions_copy"), null, KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
+        addMenuItem(actionsMenu, uiResourceBundle.getString("menu_actions_move"), null, KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0));
+        addMenuItem(actionsMenu, uiResourceBundle.getString("menu_actions_storage"), null, KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0));
+        addMenuItem(actionsMenu, uiResourceBundle.getString("menu_actions_remove"), null, KeyStroke.getKeyStroke(KeyEvent.VK_F8, 0));
+
     }
 
     private void initViewMenu(JMenuBar menuBar) {

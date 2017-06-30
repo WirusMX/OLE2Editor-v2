@@ -10,7 +10,7 @@ import java.util.Date;
 import static com.wirusmx.ole2editor.Constants.ENTRY_HEADER_SIZE;
 
 /**
- * Type which describes the ole2 entry
+ * Structure which describes the ole2 entry
  *
  * @author WirusMX
  */
@@ -346,6 +346,8 @@ public class OLE2Entry {
         return byteOrder != null ? byteOrder.equals(ole2Entry.byteOrder) : ole2Entry.byteOrder == null;
 
     }
+
+
 
     @Override
     public int hashCode() {

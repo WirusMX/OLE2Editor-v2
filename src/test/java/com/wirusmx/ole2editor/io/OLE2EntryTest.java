@@ -208,4 +208,296 @@ public class OLE2EntryTest extends Assert {
         OLE2Entry entry2 = new OLE2Entry(new byte[128], 0, ByteOrder.BIG_ENDIAN);
         assertEquals("Empty name", "", entry2.getNameAsString());
     }
+
+    @Test
+    public void getRawDataTest(){
+
+    }
+
+    @Test
+    public void toStringTest(){
+        for (ByteOrder bo : new ByteOrder[]{ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN}) {
+            ByteBuffer b = ByteBuffer.allocate(64);
+            b.order(bo);
+            b.putChar('D');
+            b.putChar('a');
+            b.putChar('t');
+            b.putChar('A');
+
+            OLE2Entry entry1 = new OLE2Entry(b.array(),
+                    10,
+                    OLE2Entry.EntryType.EMPTY,
+                    OLE2Entry.EntryColor.BLACK,
+                    -1,
+                    -1,
+                    -1,
+                    null,
+                    null,
+                    null,
+                    null,
+                    -1,
+                    -1,
+                    null,
+                    bo);
+
+            assertEquals("DatA", entry1.toString());
+        }
+    }
+
+    /**
+     * Where o == this
+     */
+    @Test
+    public void equalsTest1 (){
+        for (ByteOrder bo : new ByteOrder[]{ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN}) {
+            ByteBuffer b = ByteBuffer.allocate(64);
+            b.order(bo);
+            b.putChar('D');
+            b.putChar('a');
+            b.putChar('t');
+            b.putChar('A');
+
+            OLE2Entry entry1 = new OLE2Entry(b.array(),
+                    10,
+                    OLE2Entry.EntryType.EMPTY,
+                    OLE2Entry.EntryColor.BLACK,
+                    -1,
+                    -1,
+                    -1,
+                    null,
+                    null,
+                    null,
+                    null,
+                    -1,
+                    -1,
+                    null,
+                    bo);
+
+
+            OLE2Entry entry2 = entry1;
+            assertTrue(entry2.equals(entry1));
+        }
+    }
+
+    /**
+     * Where o != this
+     */
+    @Test
+    public void equalsTest2 (){
+        for (ByteOrder bo : new ByteOrder[]{ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN}) {
+            ByteBuffer b = ByteBuffer.allocate(64);
+            b.order(bo);
+            b.putChar('D');
+            b.putChar('a');
+            b.putChar('t');
+            b.putChar('A');
+
+            OLE2Entry entry1 = new OLE2Entry(b.array(),
+                    10,
+                    OLE2Entry.EntryType.EMPTY,
+                    OLE2Entry.EntryColor.BLACK,
+                    -1,
+                    -1,
+                    -1,
+                    null,
+                    null,
+                    null,
+                    null,
+                    -1,
+                    -1,
+                    null,
+                    bo);
+
+
+            OLE2Entry entry2 = new OLE2Entry(b.array(),
+                    10,
+                    OLE2Entry.EntryType.EMPTY,
+                    OLE2Entry.EntryColor.BLACK,
+                    -1,
+                    -1,
+                    -1,
+                    null,
+                    null,
+                    null,
+                    null,
+                    -1,
+                    -1,
+                    null,
+                    bo);
+            assertTrue(entry2.equals(entry1));
+        }
+    }
+
+    /**
+     * Where o == null
+     */
+    @Test
+    public void equalsTest3 (){
+        for (ByteOrder bo : new ByteOrder[]{ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN}) {
+            ByteBuffer b = ByteBuffer.allocate(64);
+            b.order(bo);
+            b.putChar('D');
+            b.putChar('a');
+            b.putChar('t');
+            b.putChar('A');
+
+            OLE2Entry entry1 = new OLE2Entry(b.array(),
+                    10,
+                    OLE2Entry.EntryType.EMPTY,
+                    OLE2Entry.EntryColor.BLACK,
+                    -1,
+                    -1,
+                    -1,
+                    null,
+                    null,
+                    null,
+                    null,
+                    -1,
+                    -1,
+                    null,
+                    bo);
+
+
+            assertFalse(entry1.equals(null));
+        }
+    }
+
+    /**
+     * Where o not a OLE2Entry
+     */
+    @Test
+    public void equalsTest4 (){
+        for (ByteOrder bo : new ByteOrder[]{ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN}) {
+            ByteBuffer b = ByteBuffer.allocate(64);
+            b.order(bo);
+            b.putChar('D');
+            b.putChar('a');
+            b.putChar('t');
+            b.putChar('A');
+
+            OLE2Entry entry1 = new OLE2Entry(b.array(),
+                    10,
+                    OLE2Entry.EntryType.EMPTY,
+                    OLE2Entry.EntryColor.BLACK,
+                    -1,
+                    -1,
+                    -1,
+                    null,
+                    null,
+                    null,
+                    null,
+                    -1,
+                    -1,
+                    null,
+                    bo);
+
+
+            assertFalse(entry1.equals(""));
+        }
+    }
+    /**
+     * Where names length is different
+     */
+    @Test
+    public void equalsTest5 (){
+        for (ByteOrder bo : new ByteOrder[]{ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN}) {
+            ByteBuffer b = ByteBuffer.allocate(64);
+            b.order(bo);
+            b.putChar('D');
+            b.putChar('a');
+            b.putChar('t');
+            b.putChar('A');
+
+            OLE2Entry entry1 = new OLE2Entry(b.array(),
+                    10,
+                    OLE2Entry.EntryType.EMPTY,
+                    OLE2Entry.EntryColor.BLACK,
+                    -1,
+                    -1,
+                    -1,
+                    null,
+                    null,
+                    null,
+                    null,
+                    -1,
+                    -1,
+                    null,
+                    bo);
+
+
+            OLE2Entry entry2 = new OLE2Entry(b.array(),
+                    12,
+                    OLE2Entry.EntryType.EMPTY,
+                    OLE2Entry.EntryColor.BLACK,
+                    -1,
+                    -1,
+                    -1,
+                    null,
+                    null,
+                    null,
+                    null,
+                    -1,
+                    -1,
+                    null,
+                    bo);
+            assertFalse(entry2.equals(entry1));
+        }
+    }
+
+    /**
+     * Where names is different, but names length are equals
+     */
+    @Test
+    public void equalsTest6 (){
+        for (ByteOrder bo : new ByteOrder[]{ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN}) {
+            ByteBuffer b = ByteBuffer.allocate(64);
+            b.order(bo);
+            b.putChar('D');
+            b.putChar('a');
+            b.putChar('t');
+            b.putChar('A');
+
+            OLE2Entry entry1 = new OLE2Entry(b.array(),
+                    10,
+                    OLE2Entry.EntryType.EMPTY,
+                    OLE2Entry.EntryColor.BLACK,
+                    -1,
+                    -1,
+                    -1,
+                    null,
+                    null,
+                    null,
+                    null,
+                    -1,
+                    -1,
+                    null,
+                    bo);
+
+
+            b.clear();
+            b = ByteBuffer.allocate(64);
+            b.order(bo);
+            b.putChar('T');
+            b.putChar('e');
+            b.putChar('s');
+            b.putChar('T');
+
+            OLE2Entry entry2 = new OLE2Entry(b.array(),
+                    12,
+                    OLE2Entry.EntryType.EMPTY,
+                    OLE2Entry.EntryColor.BLACK,
+                    -1,
+                    -1,
+                    -1,
+                    null,
+                    null,
+                    null,
+                    null,
+                    -1,
+                    -1,
+                    null,
+                    bo);
+            assertFalse(entry2.equals(entry1));
+        }
+    }
 }

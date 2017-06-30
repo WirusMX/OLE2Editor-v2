@@ -18,12 +18,12 @@ public class LinkedOLE2Entry extends OLE2Entry {
     /**
      * Construct a new ROOT STORAGE
      *
-     * @param name  - name of root storage
-     * @param order -byte order
+     * @param rootEntryName  - name of root storage
+     * @param byteOrder - byte order
      */
-    public LinkedOLE2Entry(String name, ByteOrder order) {
-        super(Converter.stringToUtf16Bytes(name, order),
-                name.length() * 2 + 2,
+    public LinkedOLE2Entry(String rootEntryName, ByteOrder byteOrder) {
+        super(Converter.stringToUtf16Bytes(rootEntryName, byteOrder),
+                rootEntryName.length() * 2 + 2,
                 EntryType.ROOT_STORAGE,
                 EntryColor.BLACK,
                 -1,
@@ -36,7 +36,7 @@ public class LinkedOLE2Entry extends OLE2Entry {
                 -1,
                 0,
                 new byte[4],
-                order);
+                byteOrder);
 
         this.fid = 0;
     }
@@ -64,7 +64,7 @@ public class LinkedOLE2Entry extends OLE2Entry {
     @Override
     public String toString() {
         if (getType().equals(EntryType.EMPTY)) {
-            if (isUnlincked()) {
+            if (isUnlinked()) {
                 return "{EMPTY STREAM #" + fid + "}";
             }
 
@@ -126,7 +126,7 @@ public class LinkedOLE2Entry extends OLE2Entry {
         return next;
     }
 
-    public boolean isUnlincked(){
+    public boolean isUnlinked() {
         return parent == null && child == null && left == null && right == null;
     }
 
@@ -142,10 +142,10 @@ public class LinkedOLE2Entry extends OLE2Entry {
      */
     @Deprecated
     public int add(final String name,
-                        final EntryType type,
-                        final int firstStreamSectorID,
-                        final int size,
-                        final ByteOrder byteOrder) {
+                   final EntryType type,
+                   final int firstStreamSectorID,
+                   final int size,
+                   final ByteOrder byteOrder) {
 
         if (!getType().equals(EntryType.ROOT_STORAGE) && !getType().equals(EntryType.USER_STORAGE)) {
             throw new IllegalMethodCallException("Stream with type:" + getType().toString() + " can not contains children");
