@@ -1,0 +1,39 @@
+---------------- Catalog ----------------
+(0000) 0x0000, 2, header length 0x0010
+(0002) 0x0002, 2, ? 0x0007
+(0004) 0x0004, 4, count of thumbnails
+(0008) 0x0008, 4, - image width
+(0012) 0x000C, 4, - image height
+-Section
+(0000) 0x0000, 4, section size* 0x000C
+(0004) 0x0004, 4, number (item id)
+(0008) 0x0008, 8, insertion date
+(0012) 0x000C, *, file name or folder GUID
+(000*) 0x000*, 2, 0x0000
+-/
+Note:
+1. name Catalog
+-----------------------------------------
+------------ Image stream t1 ------------
+(0000) 0x0000, 4, header length
+(0004) 0x0004, 4, ? 0x00000001 - may be count of sections before data
+(0008) 0x0008, 4, data(image) length *
+(0012) 0x000C, *, data(image)
+-----
+Note:
+1. name - id from Catalog stream
+-----------------------------------------
+------------ Image stream t2 ------------
+(0000) 0x0000, 4, header length
+(0004) 0x0004, 4, ? 0x00000003 - may be count of sections before data
+(0008) 0x0008, 4, data(image) length *
+(0012) 0x000C, 4, ? 0x00000000
+(0016) 0x0010, 8, ?
+(0024) 0x0018, *, data(image)
+-----
+Note:
+1. name start with 256_ - size of thumbnail image by the large side
+2. name suffix (after 256_) - 16 symbols (8 bytes in hex format)
+Example: 256_96b63c544e7374d0
+-----------------------------------------
+

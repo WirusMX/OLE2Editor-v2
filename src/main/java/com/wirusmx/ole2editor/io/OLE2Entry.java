@@ -294,7 +294,10 @@ public class OLE2Entry {
         return endBytes;
     }
 
-    public byte[] getRawData(){
+    /**
+     * @return 128 bytes of stream heder
+     */
+    public byte[] getRawData() {
         ByteBuffer buffer = ByteBuffer.allocate(128);
         buffer.order(byteOrder);
         buffer.put(name);
@@ -346,7 +349,6 @@ public class OLE2Entry {
         return byteOrder != null ? byteOrder.equals(ole2Entry.byteOrder) : ole2Entry.byteOrder == null;
 
     }
-
 
 
     @Override

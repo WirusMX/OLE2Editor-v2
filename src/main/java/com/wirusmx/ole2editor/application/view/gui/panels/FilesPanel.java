@@ -16,8 +16,6 @@ import java.util.Comparator;
 import java.util.ResourceBundle;
 
 public class FilesPanel extends MyPanel {
-    private ResourceBundle uiResourceBundle = ResourceBundle.getBundle("lang.ui");
-
     private DefaultListModel<JListElementWrapper> filesListModel;
     private JLabel filesListLabel;
 

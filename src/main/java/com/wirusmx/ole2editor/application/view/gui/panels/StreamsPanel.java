@@ -33,7 +33,6 @@ public class StreamsPanel extends MyPanel {
     private DefaultListModel<Object> streamsListModel;
     private JLabel streamsListLabel;
 
-
     private LinkedOLE2Entry currentStorage = null;
 
     public StreamsPanel(GuiView view) {
@@ -107,7 +106,10 @@ public class StreamsPanel extends MyPanel {
         root.setUserObject(new FileListElement(view.getController().getCurrentFile()));
         updateTree(root, currentStorage);
         addWidowedStreams(view.getController().getWidowedStreamsList());
-        treeModel.insertNodeInto(new DefaultMutableTreeNode(new SystemInformation("System information", -5)), root,
+        treeModel.insertNodeInto(
+                new DefaultMutableTreeNode(
+                        new SystemInformation(uiResourceBundle.getString("streams_panel_system_information_label"), -5)),
+                root,
                 root.getChildCount());
     }
 
@@ -145,7 +147,7 @@ public class StreamsPanel extends MyPanel {
     }
 
     private void updateList() {
-        streamsListLabel.setText("System information");
+        streamsListLabel.setText(uiResourceBundle.getString("streams_panel_system_information_label"));
         streamsListModel.clear();
 
         streamsListModel.addElement(new SystemInformation("HEADER", -1));
@@ -167,7 +169,7 @@ public class StreamsPanel extends MyPanel {
     }
 
     private void updateList(List<LinkedOLE2Entry> streams) {
-        streamsListLabel.setText("Widowed streams");
+        streamsListLabel.setText(uiResourceBundle.getString("streams_panel_system_widowed_streams_label"));
         streamsListModel.clear();
 
         for (LinkedOLE2Entry e : streams) {
@@ -188,7 +190,7 @@ public class StreamsPanel extends MyPanel {
 
         @Override
         public String toString() {
-            return "Widowed streams";
+            return uiResourceBundle.getString("streams_panel_system_widowed_streams_label");
         }
     }
 

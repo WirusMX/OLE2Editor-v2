@@ -2,6 +2,7 @@ package com.wirusmx.ole2editor.utils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 
 public class Converter {
     /**
@@ -20,7 +21,7 @@ public class Converter {
         ByteBuffer buffer = ByteBuffer.wrap(bytes, 0, 2);
         buffer.order(order);
         return buffer.getShort();
-        
+
     }
 
     /**
@@ -117,7 +118,7 @@ public class Converter {
         char ch;
         int processedBytesCount = 0;
         while (processedBytesCount < bytes.length && (ch = buffer.getChar()) != 0) {
-            if (ch < 32){
+            if (ch < 32) {
                 result += String.format("[%02X]", ch & 0xFF);
             } else {
                 result += ch;
