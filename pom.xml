@@ -5,12 +5,15 @@
 
     <groupId>com.wirusmx</groupId>
     <artifactId>ole2editor</artifactId>
-    <version>2.0</version>
+    <version>2.0.0</version>
     <packaging>jar</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jarOutput>${basedir}/target/application/</jarOutput>
+        <jar.output>${basedir}/target/application/</jar.output>
+        <java.version>1.7</java.version>
+        <main.class>com.wirusmx.ole2editor.MainClass</main.class>
+        <application.title>OLE2Editor</application.title>
     </properties>
 
     <dependencies>
@@ -32,6 +35,21 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>akathist-repository</id>
+            <name>Akathist Repository</name>
+            <url>http://www.9stmaryrd.com/maven</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>akathist-repository</id>
+            <name>Akathist Repository</name>
+            <url>http://www.9stmaryrd.com/maven</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <build>
         <plugins>
@@ -64,8 +82,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
 
@@ -76,7 +94,7 @@
                 <executions>
                     <execution>
                         <id>native2ascii-utf8-properties</id>
-                        <phase>process-classes</phase>
+                        <phase>validate</phase>
                         <goals>
                             <goal>native2ascii</goal>
                         </goals>
@@ -96,11 +114,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
-                    <outputDirectory>${jarOutput}</outputDirectory>
+                    <outputDirectory>${jar.output}</outputDirectory>
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>com.wirusmx.ole2editor.MainClass</mainClass>
+                            <mainClass>${main.class}</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -111,13 +129,12 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>compile</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${jarOutput}/lib</outputDirectory>
-                            <includeScope>compile</includeScope>
+                            <outputDirectory>${jar.output}/lib</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -130,12 +147,12 @@
                 <executions>
                     <execution>
                         <id>copy-resources</id>
-                        <phase>validate</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${jarOutput}/img</outputDirectory>
+                            <outputDirectory>${jar.output}/img</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>img</directory>
@@ -150,16 +167,59 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${jarOutput}/cfg</outputDirectory>
+                            <outputDirectory>${jar.output}/cfg</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>cfg</directory>
+                                    <filtering>true</filtering>
                                 </resource>
                             </resources>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>com.akathist.maven.plugins.launch4j</groupId>
+                <artifactId>launch4j-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>l4j-clui</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>launch4j</goal>
+                        </goals>
+                        <configuration>
+                            <headerType>gui</headerType>
+                            <outfile>${jar.output}/${application.title}.exe</outfile>
+                            <jar>${jar.output}/${project.artifactId}-${project.version}.jar</jar>
+                            <errTitle>${application.title}</errTitle>
+                            <icon>img/favicon.ico</icon>
+                            <classPath>
+                                <mainClass>${main.class}</mainClass>
+                                <addDependencies>true</addDependencies>
+                                <preCp>anything</preCp>
+                            </classPath>
+                            <jre>
+                                <minVersion>${java.version}.0</minVersion>
+                            </jre>
+                            <versionInfo>
+                                <fileVersion>${project.version}.0</fileVersion>
+                                <txtFileVersion>${project.version}</txtFileVersion>
+                                <fileDescription>OLE2 files editor</fileDescription>
+                                <copyright>Copyright © 2017 WirusMX</copyright>
+                                <productVersion>${project.version}.0</productVersion>
+                                <txtProductVersion>${project.version}</txtProductVersion>
+                                <companyName>WirusMX</companyName>
+                                <productName>${application.title}</productName>
+                                <internalName>${application.title}</internalName>
+                                <originalFilename>${application.title}.exe</originalFilename>
+                            </versionInfo>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
 
         <resources>
